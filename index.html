@@ -179,7 +179,7 @@
           return sessionDate >= weekStart && sessionDate <= weekEnd;
         }).length;
 
-        const weekLabel = `W${16 - i}`;
+        const weekLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         data.push({ week: weekLabel, count });
       }
 
@@ -211,7 +211,7 @@
           },
           scales: {
             x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
-            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary }, beginAtZero: true }
+            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary, stepSize: 1 }, beginAtZero: true }
           }
         }
       });
@@ -236,7 +236,6 @@
       const firstVolume = normalized[0].volume;
       const change = latestVolume - firstVolume;
       const changePercent = (change / firstVolume) * 100;
-      const avgSetCount = Math.round(r.sets.length *10) / 10 || 0;
 
       stats.innerHTML = `
         <div class="stat-card">
@@ -391,15 +390,19 @@
       const sorted = Array.from(months).sort().reverse();
       const select = document.getElementById('monthSelect');
 
-      sorted.slice(0, -1).forEach((m, idx) => {
-        const option = document.createElement('option');
-        option.value = idx;
-        option.textContent = getMonthName(m);
-        select.appendChild(option);
-      });
+      // Clear existing options
+      while (select.options.length > 0) {
+        select.remove(0);
+      }
 
-      if (select.options.length > 0) {
-        select.value = 0;
+      // Add options for comparing consecutive months (need at least 2 months)
+      if (sorted.length >= 2) {
+        sorted.slice(0, -1).forEach((m, idx) => {
+          const option = document.createElement('option');
+          option.value = idx;
+          option.textContent = `${getMonthName(m)} vs ${getMonthName(sorted[idx + 1])}`;
+          select.appendChild(option);
+        });
       }
     }
 
@@ -474,8 +477,12 @@
     function calculateDashboardStats() {
       const sessions = getSessions();
       const today = new Date();
+
+      // Calculate week start (Sunday)
       const thisWeekStart = new Date(today);
-      thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+      const day = thisWeekStart.getDay();
+      thisWeekStart.setDate(thisWeekStart.getDate() - day);
+      thisWeekStart.setHours(0, 0, 0, 0);
 
       let setsThisWeek = 0;
       let daysSinceLastSession = null;
@@ -483,10 +490,12 @@
       sessions.forEach(session => {
         const sessionDate = parseDate(session.date);
 
-        if (sessionDate >= thisWeekStart) {
+        // Count sets for this week (inclusive of today)
+        if (sessionDate >= thisWeekStart && sessionDate <= today) {
           setsThisWeek += session.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
         }
 
+        // Days since last session
         if (daysSinceLastSession === null) {
           daysSinceLastSession = Math.floor((today - sessionDate) / (24 * 60 * 60 * 1000));
         }
