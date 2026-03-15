@@ -8,18 +8,43 @@
 let allData = [];
 
 /**
- * Initialize data - load seed data
+ * Initialize data - load seed data and combine split exercises
  */
 async function initializeData() {
   try {
     const response = await fetch('/data/seed.json');
-    allData = await response.json();
+    let data = await response.json();
+
+    // Combine duplicate exercises on the same date
+    data = combineDuplicateExercises(data);
+
+    allData = data;
     console.log(`Loaded ${allData.length} exercises from seed data`);
     return allData;
   } catch (error) {
     console.error('Error loading seed data:', error);
     return [];
   }
+}
+
+/**
+ * Combine exercises with the same name on the same date into single records
+ */
+function combineDuplicateExercises(data) {
+  const combined = {};
+
+  data.forEach(record => {
+    const key = `${record.date}|${record.exercise}`;
+
+    if (!combined[key]) {
+      combined[key] = { ...record };
+    } else {
+      // Merge sets
+      combined[key].sets = [...combined[key].sets, ...record.sets];
+    }
+  });
+
+  return Object.values(combined);
 }
 
 /**

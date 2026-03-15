@@ -280,7 +280,30 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { labels: { color: THEME.text, font: { size: 14 } } },
-            tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text, borderColor: THEME.borderColor, borderWidth: 1 }
+            tooltip: {
+              backgroundColor: THEME.cardBg,
+              titleColor: THEME.accent,
+              bodyColor: THEME.text,
+              borderColor: THEME.borderColor,
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                title: (context) => formatDate(records[context[0].dataIndex].date),
+                label: () => '',
+                afterLabel: (context) => {
+                  const record = records[context.dataIndex];
+                  let text = '';
+                  record.sets.forEach((set, idx) => {
+                    const vol = (set.weight * set.reps).toFixed(0);
+                    text += `Set ${idx + 1}: ${set.weight}kg × ${set.reps} = ${vol}\n`;
+                  });
+                  const avgVol = calculateVolume(record) / record.sets.length;
+                  text += `\nAvg per set: ${avgVol.toFixed(0)}`;
+                  return text;
+                }
+              }
+            }
           },
           scales: {
             x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
@@ -310,7 +333,7 @@
           }
         });
 
-        const weekLabel = `W${weeks - i}`;
+        const weekLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         weeklyData.push({ week: weekLabel, volume });
       }
 
