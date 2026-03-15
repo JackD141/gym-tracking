@@ -233,9 +233,14 @@
         const value = e.target.value.toLowerCase();
         if (value.length === 0) return;
 
-        const matches = exercises.filter(ex =>
-          ex.name.toLowerCase().includes(value)
+        // Prioritize exercises that START with the search term, then those that contain it
+        const startMatches = exercises.filter(ex =>
+          ex.name.toLowerCase().startsWith(value)
         );
+        const containMatches = exercises.filter(ex =>
+          ex.name.toLowerCase().includes(value) && !ex.name.toLowerCase().startsWith(value)
+        );
+        const matches = [...startMatches, ...containMatches];
 
         if (matches.length > 0 && value.length > 2) {
           input.value = matches[0].name;
