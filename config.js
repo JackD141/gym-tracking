@@ -9,8 +9,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfW1DTodLaDKkk
 // Color theme
 const THEME = {
   bg: '#0f0f13',
-  accent: '#00d4ff',
-  accentDark: '#0099cc',
+  accent: '#4a9eff',
+  accentDark: '#2a7cd9',
   text: '#ffffff',
   textSecondary: '#b0b0b0',
   cardBg: '#1a1a20',
