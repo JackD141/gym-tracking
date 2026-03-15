@@ -52,22 +52,29 @@
         </div>
       </div>
 
-      <!-- Personal Bests -->
+      <!-- Exercise Analysis -->
       <div class="card">
-        <h2>Personal Bests</h2>
-        <div id="personalBests" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;"></div>
-      </div>
-
-      <!-- Exercise Focus -->
-      <div class="card">
-        <h2>Exercise Focus</h2>
-        <div class="form-group" style="max-width: 400px; position: relative;">
+        <h2>Exercise Analysis</h2>
+        <div class="form-group" style="max-width: 400px; position: relative; margin-bottom: 2rem;">
           <label for="focusExerciseInput">Search Exercise</label>
           <input type="text" id="focusExerciseInput" placeholder="Type to search..." style="width: 100%;">
           <div id="focusExerciseSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 10;"></div>
         </div>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Change from first to latest session</p>
-        <div id="focusStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
+
+        <!-- Personal Bests for selected exercise -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: var(--text-secondary);">Personal Bests</h3>
+          <div id="personalBests" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
+        </div>
+
+        <!-- Progress stats -->
+        <div style="margin-bottom: 2rem;">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: var(--text-secondary);">Progress</h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 1rem 0;">Change from first to latest session</p>
+          <div id="focusStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
+        </div>
+
+        <!-- Chart -->
         <div class="chart-container">
           <canvas id="focusChart"></canvas>
         </div>
@@ -535,15 +542,21 @@
 
         if (month1Records.length === 0 || month2Records.length === 0) return null;
 
-        const m1Avg = month1Records[month1Records.length - 1].sets.length > 0 ?
-          calculateVolume(month1Records[month1Records.length - 1]) / month1Records[month1Records.length - 1].sets.length : 0;
+        // Calculate average per-set volume across all sessions in each month
+        const m1AvgPerSet = month1Records.reduce((sum, r) => {
+          const sessAvg = r.sets.length > 0 ? calculateVolume(r) / r.sets.length : 0;
+          return sum + sessAvg;
+        }, 0) / month1Records.length;
 
-        const m2Avg = month2Records[month2Records.length - 1].sets.length > 0 ?
-          calculateVolume(month2Records[month2Records.length - 1]) / month2Records[month2Records.length - 1].sets.length : 0;
+        const m2AvgPerSet = month2Records.reduce((sum, r) => {
+          const sessAvg = r.sets.length > 0 ? calculateVolume(r) / r.sets.length : 0;
+          return sum + sessAvg;
+        }, 0) / month2Records.length;
 
-        const improvement = ((m1Avg - m2Avg) / m2Avg) * 100;
+        if (m2AvgPerSet === 0) return null;
+        const improvement = ((m1AvgPerSet - m2AvgPerSet) / m2AvgPerSet) * 100;
 
-        return { name: ex.name, improvement, m1Avg, m2Avg };
+        return { name: ex.name, improvement, m1Avg: m1AvgPerSet, m2Avg: m2AvgPerSet };
       }).filter(x => x !== null)
         .sort((a, b) => b.improvement - a.improvement)
         .slice(0, 3);
