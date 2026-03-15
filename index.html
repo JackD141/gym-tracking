@@ -100,13 +100,14 @@
       <!-- Month-to-Month Improvements -->
       <div class="card">
         <h2>Month-to-Month Improvements</h2>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;">
           <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <label style="margin-bottom: 0;">Month 1:</label>
+            <label style="margin-bottom: 0;">Earlier:</label>
             <select id="month1Select" style="max-width: 150px;"></select>
           </div>
+          <div style="font-size: 1.5rem; color: var(--text-secondary);">→</div>
           <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <label style="margin-bottom: 0;">Month 2:</label>
+            <label style="margin-bottom: 0;">Recent:</label>
             <select id="month2Select" style="max-width: 150px;"></select>
           </div>
         </div>
@@ -217,28 +218,43 @@
         const weekStart = new Date(weekEnd);
         weekStart.setDate(weekStart.getDate() - 6);
 
-        const count = sessions.filter(session => {
+        const weekSessions = sessions.filter(session => {
           const sessionDate = parseDate(session.date);
           return sessionDate >= weekStart && sessionDate <= weekEnd;
-        }).length;
+        });
+
+        // Count sets per exercise
+        const exerciseSets = {};
+        weekSessions.forEach(session => {
+          session.exercises.forEach(ex => {
+            if (!exerciseSets[ex.exercise]) {
+              exerciseSets[ex.exercise] = 0;
+            }
+            exerciseSets[ex.exercise] += ex.sets.length;
+          });
+        });
 
         const weekLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        data.push({ week: weekLabel, count });
+        data.push({
+          week: weekLabel,
+          count: weekSessions.length,
+          exerciseSets: exerciseSets
+        });
       }
 
       return data;
     }
 
-    function createFrequencyChart(data) {
+    function createFrequencyChart(frequencyData) {
       const ctx = document.getElementById('frequencyChart').getContext('2d');
 
       frequencyChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: data.map(d => d.week),
+          labels: frequencyData.map(d => d.week),
           datasets: [{
             label: 'Sessions per week',
-            data: data.map(d => d.count),
+            data: frequencyData.map(d => d.count),
             backgroundColor: THEME.accent,
             borderColor: THEME.accentDark,
             borderWidth: 1,
@@ -250,7 +266,30 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { labels: { color: THEME.text, font: { size: 14, weight: '500' }, padding: 20 } },
-            tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text, borderColor: THEME.borderColor, borderWidth: 1 }
+            tooltip: {
+              backgroundColor: THEME.cardBg,
+              titleColor: THEME.accent,
+              bodyColor: THEME.text,
+              borderColor: THEME.borderColor,
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                title: (context) => {
+                  return `Week of ${frequencyData[context[0].dataIndex].week}`;
+                },
+                label: (context) => {
+                  return `Sessions: ${context.parsed.y}`;
+                },
+                afterLabel: (context) => {
+                  const weekData = frequencyData[context.dataIndex];
+                  const exercises = Object.entries(weekData.exerciseSets)
+                    .map(([name, sets]) => ({ name, sets }))
+                    .sort((a, b) => b.sets - a.sets);
+                  return exercises.map(ex => `${ex.name}: ${ex.sets} sets`).join('\n');
+                }
+              }
+            }
           },
           scales: {
             x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
@@ -274,12 +313,14 @@
         return { date: r.date, volume: avgPerSet, maxWeight: maxWeight, setCount: r.sets.length };
       });
 
-      // Stats
+      // Stats - compare avg of last 3 vs first 3 sessions
       const stats = document.getElementById('focusStats');
+      const first3Avg = normalized.slice(0, Math.min(3, normalized.length))
+        .reduce((sum, r) => sum + r.volume, 0) / Math.min(3, normalized.length);
+      const last3Avg = normalized.slice(Math.max(0, normalized.length - 3))
+        .reduce((sum, r) => sum + r.volume, 0) / Math.min(3, normalized.length);
+      const changePercent = first3Avg > 0 ? ((last3Avg - first3Avg) / first3Avg) * 100 : 0;
       const latestVolume = normalized[normalized.length - 1].volume;
-      const firstVolume = normalized[0].volume;
-      const change = latestVolume - firstVolume;
-      const changePercent = (change / firstVolume) * 100;
 
       stats.innerHTML = `
         <div class="stat-card">
@@ -502,10 +543,10 @@
         });
       });
 
-      // Set defaults: Month 1 = latest, Month 2 = second latest
+      // Set defaults: Month 1 = earlier, Month 2 = most recent
       if (months.length >= 2) {
-        select1.value = months[0];
-        select2.value = months[1];
+        select1.value = months[1];  // earlier month
+        select2.value = months[0];  // recent month
       }
     }
 
