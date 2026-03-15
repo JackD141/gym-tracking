@@ -4,16 +4,16 @@
  */
 
 const THEME = {
-  bg: '#0f0f13',
-  accent: '#00d4ff',
-  accentDark: '#0099cc',
-  text: '#ffffff',
-  textSecondary: '#b0b0b0',
-  cardBg: '#1a1a20',
-  borderColor: '#2a2a2f',
-  success: '#00ff88',
-  danger: '#ff4444',
-  warning: '#ffaa00'
+  bg: '#f8f9fa',
+  accent: '#0066cc',
+  accentDark: '#0052a3',
+  text: '#1a1a1a',
+  textSecondary: '#666666',
+  cardBg: '#ffffff',
+  borderColor: '#e0e0e0',
+  success: '#00b366',
+  danger: '#cc0000',
+  warning: '#ff9900'
 };
 
 /**

@@ -27,49 +27,69 @@
       <h1>Dashboard</h1>
       <p>Your gym workout summary and stats</p>
 
-      <!-- Stats Grid -->
-      <div class="card-grid" id="statsGrid">
+      <!-- Quick Stats -->
+      <div class="card-grid" id="quickStats">
         <div class="stat-card">
           <div class="stat-label">Total Sessions</div>
           <div class="stat-value" id="totalSessions">—</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">This Month</div>
-          <div class="stat-value" id="sessionsThisMonth">—</div>
+          <div class="stat-label">Sets This Week</div>
+          <div class="stat-value" id="setsThisWeek">—</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Days Since Last Session</div>
           <div class="stat-value" id="daysSince">—</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Volume This Week</div>
-          <div class="stat-value" id="volumeThisWeek">—</div>
-          <div id="volumeChange" class="stat-change"></div>
-        </div>
       </div>
 
-      <!-- Top Improved Exercises -->
+      <!-- Workout Frequency -->
       <div class="card">
-        <h2>Top Improvements</h2>
-        <div id="topImprovements"></div>
-      </div>
-
-      <!-- Weekly Volume Chart -->
-      <div class="card">
-        <h2>Recent Activity</h2>
+        <h2>Workout Frequency</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">When have you been training?</p>
         <div class="chart-container">
-          <canvas id="weeklyChart"></canvas>
+          <canvas id="frequencyChart"></canvas>
         </div>
       </div>
 
-      <!-- Quick Actions -->
+      <!-- Exercise Focus -->
       <div class="card">
-        <h2>Quick Actions</h2>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <a href="/log.html" class="btn">Log New Workout</a>
-          <a href="/progress.html" class="btn secondary">View Progress</a>
-          <a href="/history.html" class="btn secondary">View History</a>
+        <h2>Exercise Focus</h2>
+        <div class="form-group" style="max-width: 400px;">
+          <label for="focusExercise">Select Exercise</label>
+          <select id="focusExercise"></select>
         </div>
+        <div id="focusStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
+        <div class="chart-container">
+          <canvas id="focusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Volume Trend -->
+      <div class="card">
+        <h2>Volume Trend</h2>
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <label for="volumeWeeks" style="margin-bottom: 0;">Weeks to show:</label>
+          <select id="volumeWeeks" style="max-width: 120px;">
+            <option value="4">4 weeks</option>
+            <option value="8">8 weeks</option>
+            <option value="12">12 weeks</option>
+            <option value="26">6 months</option>
+          </select>
+        </div>
+        <div class="chart-container">
+          <canvas id="volumeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Month-to-Month Improvements -->
+      <div class="card">
+        <h2>Month-to-Month Improvements</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <label style="margin-bottom: 0;">Compare months:</label>
+          <select id="monthSelect" style="max-width: 200px;"></select>
+        </div>
+        <div id="monthImprovements"></div>
       </div>
     </div>
   </main>
@@ -81,66 +101,203 @@
   <script src="/data.js"></script>
   <script src="/charts.js"></script>
   <script>
-    let weeklyChart;
+    let frequencyChart, focusChart, volumeChart;
 
     async function loadDashboard() {
       // Initialize data
       await initializeData();
 
-      // Update stats
+      // Populate quick stats
       const stats = calculateDashboardStats();
       document.getElementById('totalSessions').textContent = stats.totalSessions;
-      document.getElementById('sessionsThisMonth').textContent = stats.sessionsThisMonth;
+      document.getElementById('setsThisWeek').textContent = stats.setsThisWeek;
       document.getElementById('daysSince').textContent =
         stats.daysSinceLastSession === null ? '—' : `${stats.daysSinceLastSession}d`;
 
-      const volumeFormatted = formatNumber(stats.volumeThisWeek);
-      document.getElementById('volumeThisWeek').textContent = volumeFormatted;
+      // Frequency chart
+      const frequencyData = calculateFrequency();
+      createFrequencyChart(frequencyData);
 
-      const changeEl = document.getElementById('volumeChange');
-      if (stats.volumeLastWeek > 0) {
-        const change = stats.volumeChange;
-        const className = change >= 0 ? 'positive' : 'negative';
-        const symbol = change >= 0 ? '+' : '';
-        changeEl.className = `stat-change ${className}`;
-        changeEl.textContent = `${symbol}${change.toFixed(1)}%`;
-      } else {
-        changeEl.style.display = 'none';
+      // Exercise dropdown
+      const exercises = getAllExercises();
+      const select = document.getElementById('focusExercise');
+      exercises.forEach(ex => {
+        const option = document.createElement('option');
+        option.value = ex.name;
+        option.textContent = ex.name;
+        select.appendChild(option);
+      });
+
+      // Set default to "Bench press (Smith machine)" if it exists
+      const benchOption = exercises.find(ex => ex.name.includes('Bench press') && ex.name.includes('Smith'));
+      if (benchOption) {
+        select.value = benchOption.name;
+      } else if (exercises.length > 0) {
+        select.value = exercises[0].name;
       }
 
-      // Top improvements
-      const topImprovements = getTopImprovedExercises(3);
-      const improvementsHtml = topImprovements
-        .map(ex => `
-          <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-weight: 600; color: var(--accent);">${ex.name}</div>
-              <div style="font-size: 0.9rem; color: var(--text-secondary);">
-                ${formatNumber(ex.firstVolume)} → ${formatNumber(ex.lastVolume)}
-              </div>
-            </div>
-            <div class="stat-change positive">+${ex.improvement.toFixed(1)}%</div>
-          </div>
-        `)
-        .join('');
+      // Initial focus chart
+      if (select.value) {
+        showFocusChart(select.value);
+      }
 
-      document.getElementById('topImprovements').innerHTML = improvementsHtml ||
-        '<p style="color: var(--text-secondary);">Not enough data yet</p>';
+      select.addEventListener('change', (e) => {
+        if (e.target.value) {
+          showFocusChart(e.target.value);
+        }
+      });
 
-      // Weekly volume chart
-      const sessions = getSessions();
-      const weeklyData = calculateWeeklyVolume(sessions);
-      weeklyChart = createWeeklyVolumeChart('weeklyChart', weeklyData);
+      // Volume weeks selector
+      document.getElementById('volumeWeeks').addEventListener('change', () => {
+        showVolumeChart();
+      });
+
+      // Initial volume chart
+      showVolumeChart();
+
+      // Month selector and improvements
+      populateMonthSelect();
+      showMonthImprovements();
+
+      document.getElementById('monthSelect').addEventListener('change', showMonthImprovements);
     }
 
-    /**
-     * Calculate volume by week
-     */
-    function calculateWeeklyVolume(sessions) {
+    function calculateFrequency() {
+      const sessions = getSessions();
       const today = new Date();
-      const weeks = [];
+      const data = [];
 
-      for (let i = 0; i < 4; i++) {
+      // Get last 16 weeks
+      for (let i = 15; i >= 0; i--) {
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() - i * 7);
+        const weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+
+        const count = sessions.filter(session => {
+          const sessionDate = parseDate(session.date);
+          return sessionDate >= weekStart && sessionDate <= weekEnd;
+        }).length;
+
+        const weekLabel = `W${16 - i}`;
+        data.push({ week: weekLabel, count });
+      }
+
+      return data;
+    }
+
+    function createFrequencyChart(data) {
+      const ctx = document.getElementById('frequencyChart').getContext('2d');
+
+      frequencyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.week),
+          datasets: [{
+            label: 'Sessions per week',
+            data: data.map(d => d.count),
+            backgroundColor: THEME.accent,
+            borderColor: THEME.accentDark,
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: THEME.text, font: { size: 14, weight: '500' } } },
+            tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text, borderColor: THEME.borderColor, borderWidth: 1 }
+          },
+          scales: {
+            x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
+            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function showFocusChart(exerciseName) {
+      const records = getExerciseRecords(exerciseName);
+      if (records.length === 0) {
+        document.getElementById('focusStats').innerHTML = '<p>No data for this exercise</p>';
+        return;
+      }
+
+      // Calculate normalized per-set volumes
+      const normalized = records.map(r => {
+        const avgPerSet = r.sets.length > 0 ? calculateVolume(r) / r.sets.length : 0;
+        return { date: r.date, volume: avgPerSet, setCount: r.sets.length };
+      });
+
+      // Stats
+      const stats = document.getElementById('focusStats');
+      const latestVolume = normalized[normalized.length - 1].volume;
+      const firstVolume = normalized[0].volume;
+      const change = latestVolume - firstVolume;
+      const changePercent = (change / firstVolume) * 100;
+      const avgSetCount = Math.round(r.sets.length *10) / 10 || 0;
+
+      stats.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">Latest (per set)</div>
+          <div class="stat-value">${latestVolume.toFixed(0)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Change</div>
+          <div class="stat-value" style="color: ${changePercent >= 0 ? 'var(--success)' : 'var(--danger)'};">
+            ${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(1)}%
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sessions</div>
+          <div class="stat-value">${records.length}</div>
+        </div>
+      `;
+
+      // Chart
+      const ctx = document.getElementById('focusChart').getContext('2d');
+      if (focusChart) focusChart.destroy();
+
+      focusChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: normalized.map(d => formatDate(d.date)),
+          datasets: [{
+            label: `Avg Volume per Set (${exerciseName})`,
+            data: normalized.map(d => d.volume),
+            borderColor: THEME.accent,
+            backgroundColor: `rgba(0, 102, 204, 0.1)`,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: THEME.accent,
+            pointBorderWidth: 2,
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: THEME.text, font: { size: 14 } } },
+            tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text, borderColor: THEME.borderColor, borderWidth: 1 }
+          },
+          scales: {
+            x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
+            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } }
+          }
+        }
+      });
+    }
+
+    function showVolumeChart() {
+      const weeks = parseInt(document.getElementById('volumeWeeks').value);
+      const sessions = getSessions();
+      const today = new Date();
+      const weeklyData = [];
+
+      for (let i = weeks - 1; i >= 0; i--) {
         const weekEnd = new Date(today);
         weekEnd.setDate(weekEnd.getDate() - i * 7);
         const weekStart = new Date(weekEnd);
@@ -154,13 +311,192 @@
           }
         });
 
-        weeks.unshift({
-          week: `Week ${4 - i}`,
-          volume: volume
-        });
+        const weekLabel = `W${weeks - i}`;
+        weeklyData.push({ week: weekLabel, volume });
       }
 
-      return weeks;
+      // Calculate best-fit line
+      const trendline = calculateTrendline(weeklyData.map(d => d.volume));
+
+      const ctx = document.getElementById('volumeChart').getContext('2d');
+      if (volumeChart) volumeChart.destroy();
+
+      volumeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: weeklyData.map(d => d.week),
+          datasets: [
+            {
+              label: 'Weekly Volume',
+              data: weeklyData.map(d => d.volume),
+              borderColor: THEME.accent,
+              backgroundColor: `rgba(0, 102, 204, 0.1)`,
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 5,
+              pointBackgroundColor: THEME.accent
+            },
+            {
+              label: 'Trend',
+              data: trendline,
+              borderColor: THEME.warning,
+              borderWidth: 2,
+              borderDash: [5, 5],
+              fill: false,
+              pointRadius: 0,
+              tension: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: THEME.text, font: { size: 14 } } },
+            tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text }
+          },
+          scales: {
+            x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
+            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } }
+          }
+        }
+      });
+    }
+
+    function calculateTrendline(data) {
+      if (data.length < 2) return data;
+
+      const n = data.length;
+      const sumX = n * (n - 1) / 2;
+      const sumY = data.reduce((a, b) => a + b, 0);
+      const sumXY = data.reduce((sum, y, i) => sum + i * y, 0);
+      const sumX2 = n * (n - 1) * (2 * n - 1) / 6;
+
+      const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const b = (sumY - m * sumX) / n;
+
+      return data.map((_, i) => m * i + b);
+    }
+
+    function populateMonthSelect() {
+      const sessions = getSessions();
+      const months = new Set();
+
+      sessions.forEach(s => {
+        const [day, month, year] = s.date.split('/');
+        months.add(`${year}-${month}`);
+      });
+
+      const sorted = Array.from(months).sort().reverse();
+      const select = document.getElementById('monthSelect');
+
+      sorted.slice(0, -1).forEach((m, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        option.textContent = getMonthName(m);
+        select.appendChild(option);
+      });
+
+      if (select.options.length > 0) {
+        select.value = 0;
+      }
+    }
+
+    function getMonthName(ym) {
+      const [year, month] = ym.split('-');
+      const date = new Date(year, month - 1);
+      return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    function showMonthImprovements() {
+      const sessions = getSessions();
+      const months = Array.from(new Set(sessions.map(s => {
+        const [day, month, year] = s.date.split('/');
+        return `${year}-${month}`;
+      }))).sort().reverse();
+
+      const selectedIdx = parseInt(document.getElementById('monthSelect').value);
+      if (selectedIdx >= months.length - 1) return;
+
+      const currentMonth = months[selectedIdx];
+      const prevMonth = months[selectedIdx + 1];
+
+      const [curYear, curMonthNum] = currentMonth.split('-');
+      const [prevYear, prevMonthNum] = prevMonth.split('-');
+
+      // Get exercises and their improvements
+      const exercises = getAllExercises();
+      const improvements = exercises.map(ex => {
+        const records = getExerciseRecords(ex.name);
+
+        // Find last record of each month
+        const curMonthRecords = records.filter(r => {
+          const [d, m, y] = r.date.split('/');
+          return y === curYear && m === curMonthNum;
+        });
+
+        const prevMonthRecords = records.filter(r => {
+          const [d, m, y] = r.date.split('/');
+          return y === prevYear && m === prevMonthNum;
+        });
+
+        if (curMonthRecords.length === 0 || prevMonthRecords.length === 0) return null;
+
+        const curAvg = curMonthRecords[curMonthRecords.length - 1].sets.length > 0 ?
+          calculateVolume(curMonthRecords[curMonthRecords.length - 1]) / curMonthRecords[curMonthRecords.length - 1].sets.length : 0;
+
+        const prevAvg = prevMonthRecords[prevMonthRecords.length - 1].sets.length > 0 ?
+          calculateVolume(prevMonthRecords[prevMonthRecords.length - 1]) / prevMonthRecords[prevMonthRecords.length - 1].sets.length : 0;
+
+        const improvement = ((curAvg - prevAvg) / prevAvg) * 100;
+
+        return { name: ex.name, improvement, curAvg, prevAvg };
+      }).filter(x => x !== null)
+        .sort((a, b) => b.improvement - a.improvement)
+        .slice(0, 3);
+
+      const html = improvements.map((ex, i) => `
+        <div style="padding: 1rem; border-bottom: ${i < improvements.length - 1 ? '1px solid var(--border)' : 'none'}; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 600; color: var(--accent);">${i + 1}. ${ex.name}</div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              ${ex.prevAvg.toFixed(0)} → ${ex.curAvg.toFixed(0)} per set
+            </div>
+          </div>
+          <div class="stat-change positive">+${ex.improvement.toFixed(1)}%</div>
+        </div>
+      `).join('');
+
+      document.getElementById('monthImprovements').innerHTML = html || '<p style="color: var(--text-secondary);">No data available for this period</p>';
+    }
+
+    function calculateDashboardStats() {
+      const sessions = getSessions();
+      const today = new Date();
+      const thisWeekStart = new Date(today);
+      thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+
+      let setsThisWeek = 0;
+      let daysSinceLastSession = null;
+
+      sessions.forEach(session => {
+        const sessionDate = parseDate(session.date);
+
+        if (sessionDate >= thisWeekStart) {
+          setsThisWeek += session.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+        }
+
+        if (daysSinceLastSession === null) {
+          daysSinceLastSession = Math.floor((today - sessionDate) / (24 * 60 * 60 * 1000));
+        }
+      });
+
+      return {
+        totalSessions: sessions.length,
+        setsThisWeek,
+        daysSinceLastSession
+      };
     }
 
     // Load on page load
