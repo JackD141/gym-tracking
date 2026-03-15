@@ -171,13 +171,23 @@
       const setNum = container.children.length + 1;
       const setId = `${exerciseId}-set${setNum}`;
 
-      // Get last weight entered in any set across all exercises
+      // Get last weight and reps entered in any set across all exercises
       let lastWeight = '';
+      let lastReps = '';
       const allWeightInputs = document.querySelectorAll('.weight-input');
+      const allRepsInputs = document.querySelectorAll('.reps-input');
+
       if (allWeightInputs.length > 0) {
         const lastInput = allWeightInputs[allWeightInputs.length - 1];
         if (lastInput.value) {
           lastWeight = lastInput.value;
+        }
+      }
+
+      if (allRepsInputs.length > 0) {
+        const lastInput = allRepsInputs[allRepsInputs.length - 1];
+        if (lastInput.value) {
+          lastReps = lastInput.value;
         }
       }
 
@@ -187,7 +197,7 @@
             <label>Set ${setNum}</label>
             <input type="number" class="weight-input" placeholder="kg" step="0.5" min="0" value="${lastWeight}">
             <span style="color: var(--text-secondary);">×</span>
-            <input type="number" class="reps-input" placeholder="reps" step="1" min="0" max="100">
+            <input type="number" class="reps-input" placeholder="reps" step="1" min="0" max="100" value="${lastReps}">
           </div>
           <button type="button" class="remove-btn" onclick="removeSet('${setId}')">Remove</button>
         </div>
@@ -291,21 +301,32 @@
       window.selectExercise = selectExercise;
 
       input.addEventListener('input', (e) => {
-        const value = e.target.value.toLowerCase();
+        const value = e.target.value.toLowerCase().trim();
 
         if (value.length === 0) {
           suggestionsDiv.style.display = 'none';
           return;
         }
 
+        // Ensure exercises array is populated
+        if (!exercises || exercises.length === 0) {
+          console.warn('Exercises array is empty');
+          return;
+        }
+
         // Prioritize exercises that START with the search term, then those that contain it
-        const startMatches = exercises.filter(ex =>
-          ex.name.toLowerCase().startsWith(value)
-        );
-        const containMatches = exercises.filter(ex =>
-          ex.name.toLowerCase().includes(value) && !ex.name.toLowerCase().startsWith(value)
-        );
+        const startMatches = exercises.filter(ex => {
+          const name = (ex.name || '').toLowerCase();
+          return name.startsWith(value);
+        });
+
+        const containMatches = exercises.filter(ex => {
+          const name = (ex.name || '').toLowerCase();
+          return name.includes(value) && !name.startsWith(value);
+        });
+
         const matches = [...startMatches, ...containMatches];
+        console.log(`Search for "${value}": found ${matches.length} matches`);
 
         showSuggestions(matches);
       });
