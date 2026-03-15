@@ -16,7 +16,6 @@
         </div>
         <a href="/" class="active">Dashboard</a>
         <a href="/log.html">Log Workout</a>
-        <a href="/progress.html">Progress</a>
         <a href="/history.html">History</a>
       </nav>
     </div>
@@ -155,6 +154,7 @@
       if (defaultExercise) {
         input.value = defaultExercise.name;
         showFocusChart(defaultExercise.name);
+        showPersonalBestsForExercise(defaultExercise.name);
       }
 
       input.addEventListener('input', (e) => {
@@ -265,7 +265,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: THEME.text, font: { size: 14, weight: '500' }, padding: 20 } },
+            legend: { position: 'bottom', labels: { color: THEME.text, font: { size: 14, weight: '500' }, padding: 20 } },
             tooltip: {
               backgroundColor: THEME.cardBg,
               titleColor: THEME.accent,
@@ -594,8 +594,8 @@
           return sum + sessAvg;
         }, 0) / month2Records.length;
 
-        if (m2AvgPerSet === 0) return null;
-        const improvement = ((m1AvgPerSet - m2AvgPerSet) / m2AvgPerSet) * 100;
+        if (m1AvgPerSet === 0) return null;
+        const improvement = ((m2AvgPerSet - m1AvgPerSet) / m1AvgPerSet) * 100;
 
         return { name: ex.name, improvement, m1Avg: m1AvgPerSet, m2Avg: m2AvgPerSet };
       }).filter(x => x !== null)
@@ -610,7 +610,7 @@
           <div>
             <div style="font-weight: 600; color: var(--accent);">${i + 1}. ${ex.name}</div>
             <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
-              ${ex.m2Avg.toFixed(0)} → ${ex.m1Avg.toFixed(0)} per set
+              ${ex.m1Avg.toFixed(0)} → ${ex.m2Avg.toFixed(0)} per set
             </div>
           </div>
           <div class="stat-change ${ex.improvement >= 0 ? 'positive' : 'negative'}" style="white-space: nowrap; padding-left: 1rem;">
