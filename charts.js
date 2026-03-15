@@ -1,20 +1,8 @@
 /**
  * Chart utilities using Chart.js
  * Load Chart.js from CDN in HTML: <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ * THEME is imported from config.js
  */
-
-const THEME = {
-  bg: '#f8f9fa',
-  accent: '#0066cc',
-  accentDark: '#0052a3',
-  text: '#1a1a1a',
-  textSecondary: '#666666',
-  cardBg: '#ffffff',
-  borderColor: '#e0e0e0',
-  success: '#00b366',
-  danger: '#cc0000',
-  warning: '#ff9900'
-};
 
 /**
  * Create a volume progress chart for an exercise
@@ -64,7 +52,7 @@ function createVolumeChart(canvasId, exerciseName, records) {
           backgroundColor: THEME.cardBg,
           titleColor: THEME.accent,
           bodyColor: THEME.text,
-          borderColor: THEME.border,
+          borderColor: THEME.borderColor,
           borderWidth: 1,
           padding: 12,
           cornerRadius: 6,
@@ -78,7 +66,7 @@ function createVolumeChart(canvasId, exerciseName, records) {
       scales: {
         x: {
           grid: {
-            color: THEME.borderColor,
+            color: THEME.borderColorColor,
             drawBorder: false
           },
           ticks: {
@@ -88,7 +76,7 @@ function createVolumeChart(canvasId, exerciseName, records) {
         },
         y: {
           grid: {
-            color: THEME.borderColor,
+            color: THEME.borderColorColor,
             drawBorder: false
           },
           ticks: {
@@ -157,7 +145,7 @@ function create1RMChart(canvasId, exerciseName, records) {
           backgroundColor: THEME.cardBg,
           titleColor: THEME.warning,
           bodyColor: THEME.text,
-          borderColor: THEME.border,
+          borderColor: THEME.borderColor,
           borderWidth: 1,
           padding: 12,
           cornerRadius: 6,
@@ -171,7 +159,7 @@ function create1RMChart(canvasId, exerciseName, records) {
       scales: {
         x: {
           grid: {
-            color: THEME.borderColor,
+            color: THEME.borderColorColor,
             drawBorder: false
           },
           ticks: {
@@ -181,7 +169,7 @@ function create1RMChart(canvasId, exerciseName, records) {
         },
         y: {
           grid: {
-            color: THEME.borderColor,
+            color: THEME.borderColorColor,
             drawBorder: false
           },
           ticks: {
@@ -218,7 +206,7 @@ function createWeeklyVolumeChart(canvasId, weeklyData) {
         label: 'Weekly Volume',
         data: volumes,
         backgroundColor: colors,
-        borderColor: THEME.borderColor,
+        borderColor: THEME.borderColorColor,
         borderWidth: 1,
         borderRadius: 6,
         barThickness: 40
@@ -239,7 +227,7 @@ function createWeeklyVolumeChart(canvasId, weeklyData) {
           backgroundColor: THEME.cardBg,
           titleColor: THEME.accent,
           bodyColor: THEME.text,
-          borderColor: THEME.border,
+          borderColor: THEME.borderColor,
           borderWidth: 1,
           padding: 12,
           cornerRadius: 6,
@@ -263,7 +251,7 @@ function createWeeklyVolumeChart(canvasId, weeklyData) {
         },
         y: {
           grid: {
-            color: THEME.borderColor,
+            color: THEME.borderColorColor,
             drawBorder: false
           },
           ticks: {
