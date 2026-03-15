@@ -118,7 +118,7 @@
             <button type="button" class="remove-btn" onclick="removeExercise('${id}')">Remove</button>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="position: relative;">
             <label for="${id}-name">Exercise Name</label>
             <input
               type="text"
@@ -128,7 +128,7 @@
               required
               autocomplete="off"
             >
-            <div id="${id}-suggestions" style="position: absolute; z-index: 10; width: 100%; margin-top: -1rem; display: none;"></div>
+            <div id="${id}-suggestions" style="position: absolute; z-index: 10; width: 100%; margin-top: 0.5rem; display: none;"></div>
           </div>
 
           <div class="form-group">
@@ -171,11 +171,21 @@
       const setNum = container.children.length + 1;
       const setId = `${exerciseId}-set${setNum}`;
 
+      // Get last weight entered in any set across all exercises
+      let lastWeight = '';
+      const allWeightInputs = document.querySelectorAll('.weight-input');
+      if (allWeightInputs.length > 0) {
+        const lastInput = allWeightInputs[allWeightInputs.length - 1];
+        if (lastInput.value) {
+          lastWeight = lastInput.value;
+        }
+      }
+
       const html = `
         <div class="set-row" id="${setId}">
           <div class="set-input-group">
             <label>Set ${setNum}</label>
-            <input type="number" class="weight-input" placeholder="kg" step="0.5" min="0">
+            <input type="number" class="weight-input" placeholder="kg" step="0.5" min="0" value="${lastWeight}">
             <span style="color: var(--text-secondary);">×</span>
             <input type="number" class="reps-input" placeholder="reps" step="1" min="0" max="100">
           </div>
@@ -228,10 +238,65 @@
       const input = document.getElementById(nameId);
       const musclesInput = document.getElementById(musclesId);
       const notesInput = document.getElementById(notesId);
+      const suggestionsDiv = document.getElementById(`${nameId}-suggestions`);
+
+      function showSuggestions(matches) {
+        if (matches.length === 0) {
+          suggestionsDiv.style.display = 'none';
+          return;
+        }
+
+        const html = matches.slice(0, 8).map((match, idx) => `
+          <div style="padding: 0.75rem; border-bottom: 1px solid #e0e0e0; cursor: pointer; background: white; transition: background 0.15s;"
+               onmouseover="this.style.background='#f5f5f5';" onmouseout="this.style.background='white';"
+               onclick="selectExercise('${nameId}', '${match.name.replace(/'/g, "\\'")}', '${match.muscles.replace(/'/g, "\\'")}', '${match.name}')">
+            <div style="font-weight: 500; color: #0066cc;">${match.name}</div>
+            <div style="font-size: 0.85rem; color: #999;">${match.muscles}</div>
+          </div>
+        `).join('');
+
+        suggestionsDiv.innerHTML = html;
+        suggestionsDiv.style.display = 'block';
+        suggestionsDiv.style.background = 'white';
+        suggestionsDiv.style.border = '1px solid #e0e0e0';
+        suggestionsDiv.style.borderRadius = '4px';
+        suggestionsDiv.style.maxHeight = '300px';
+        suggestionsDiv.style.overflowY = 'auto';
+        suggestionsDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+      }
+
+      function selectExercise(nameId, exerciseName, muscles, exerciseNameForTips) {
+        const input = document.getElementById(nameId);
+        const musclesInput = document.getElementById(nameId.replace('-name', '-muscles'));
+        const notesInput = document.getElementById(nameId.replace('-name', '-notes'));
+        const suggestionsDiv = document.getElementById(`${nameId}-suggestions`);
+
+        input.value = exerciseName;
+        musclesInput.value = muscles;
+
+        // Use exercise tips if available, otherwise use historical notes
+        const tips = exerciseTips[exerciseNameForTips];
+        if (tips) {
+          notesInput.value = tips.tips.join('\n');
+        } else {
+          const match = exercises.find(ex => ex.name === exerciseName);
+          if (match) {
+            notesInput.value = match.formNotes;
+          }
+        }
+
+        suggestionsDiv.style.display = 'none';
+      }
+
+      window.selectExercise = selectExercise;
 
       input.addEventListener('input', (e) => {
         const value = e.target.value.toLowerCase();
-        if (value.length === 0) return;
+
+        if (value.length === 0) {
+          suggestionsDiv.style.display = 'none';
+          return;
+        }
 
         // Prioritize exercises that START with the search term, then those that contain it
         const startMatches = exercises.filter(ex =>
@@ -242,18 +307,11 @@
         );
         const matches = [...startMatches, ...containMatches];
 
-        if (matches.length > 0 && value.length > 2) {
-          input.value = matches[0].name;
-          musclesInput.value = matches[0].muscles;
-          // Use exercise tips if available, otherwise use historical notes
-          const tips = exerciseTips[matches[0].name];
-          if (tips) {
-            notesInput.value = tips.tips.join('\n');
-          } else {
-            notesInput.value = matches[0].formNotes;
-          }
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
+        showSuggestions(matches);
+      });
+
+      input.addEventListener('blur', () => {
+        setTimeout(() => suggestionsDiv.style.display = 'none', 100);
       });
 
       input.addEventListener('change', () => {
