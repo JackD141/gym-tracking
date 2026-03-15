@@ -52,13 +52,21 @@
         </div>
       </div>
 
+      <!-- Personal Bests -->
+      <div class="card">
+        <h2>Personal Bests</h2>
+        <div id="personalBests" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;"></div>
+      </div>
+
       <!-- Exercise Focus -->
       <div class="card">
         <h2>Exercise Focus</h2>
-        <div class="form-group" style="max-width: 400px;">
-          <label for="focusExercise">Select Exercise</label>
-          <select id="focusExercise"></select>
+        <div class="form-group" style="max-width: 400px; position: relative;">
+          <label for="focusExerciseInput">Search Exercise</label>
+          <input type="text" id="focusExerciseInput" placeholder="Type to search..." style="width: 100%;">
+          <div id="focusExerciseSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 10;"></div>
         </div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Change from first to latest session</p>
         <div id="focusStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
         <div class="chart-container">
           <canvas id="focusChart"></canvas>
@@ -86,8 +94,14 @@
       <div class="card">
         <h2>Month-to-Month Improvements</h2>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <label style="margin-bottom: 0;">Compare months:</label>
-          <select id="monthSelect" style="max-width: 200px;"></select>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <label style="margin-bottom: 0;">Month 1:</label>
+            <select id="month1Select" style="max-width: 150px;"></select>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <label style="margin-bottom: 0;">Month 2:</label>
+            <select id="month2Select" style="max-width: 150px;"></select>
+          </div>
         </div>
         <div id="monthImprovements"></div>
       </div>
@@ -118,33 +132,47 @@
       const frequencyData = calculateFrequency();
       createFrequencyChart(frequencyData);
 
-      // Exercise dropdown
+      // Personal bests
+      showPersonalBests();
+
+      // Exercise searchable input
       const exercises = getAllExercises();
-      const select = document.getElementById('focusExercise');
-      exercises.forEach(ex => {
-        const option = document.createElement('option');
-        option.value = ex.name;
-        option.textContent = ex.name;
-        select.appendChild(option);
-      });
+      const input = document.getElementById('focusExerciseInput');
+      const suggestions = document.getElementById('focusExerciseSuggestions');
 
       // Set default to "Bench press (Smith machine)" if it exists
       const benchOption = exercises.find(ex => ex.name.includes('Bench press') && ex.name.includes('Smith'));
-      if (benchOption) {
-        select.value = benchOption.name;
-      } else if (exercises.length > 0) {
-        select.value = exercises[0].name;
+      const defaultExercise = benchOption || (exercises.length > 0 ? exercises[0] : null);
+
+      if (defaultExercise) {
+        input.value = defaultExercise.name;
+        showFocusChart(defaultExercise.name);
       }
 
-      // Initial focus chart
-      if (select.value) {
-        showFocusChart(select.value);
-      }
+      input.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = exercises.filter(ex => ex.name.toLowerCase().includes(query));
 
-      select.addEventListener('change', (e) => {
-        if (e.target.value) {
-          showFocusChart(e.target.value);
+        if (query && filtered.length > 0) {
+          suggestions.innerHTML = filtered.map(ex =>
+            `<div style="padding: 0.5rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border); hover-bg: var(--border);" data-exercise="${ex.name}">${ex.name}</div>`
+          ).join('');
+          suggestions.style.display = 'block';
+        } else {
+          suggestions.style.display = 'none';
         }
+      });
+
+      suggestions.addEventListener('click', (e) => {
+        if (e.target.dataset.exercise) {
+          input.value = e.target.dataset.exercise;
+          suggestions.style.display = 'none';
+          showFocusChart(e.target.dataset.exercise);
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        setTimeout(() => { suggestions.style.display = 'none'; }, 100);
       });
 
       // Volume weeks selector
@@ -155,11 +183,12 @@
       // Initial volume chart
       showVolumeChart();
 
-      // Month selector and improvements
-      populateMonthSelect();
+      // Month selectors and improvements
+      populateMonthSelects();
       showMonthImprovements();
 
-      document.getElementById('monthSelect').addEventListener('change', showMonthImprovements);
+      document.getElementById('month1Select').addEventListener('change', showMonthImprovements);
+      document.getElementById('month2Select').addEventListener('change', showMonthImprovements);
     }
 
     function calculateFrequency() {
@@ -206,7 +235,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: THEME.text, font: { size: 14, weight: '500' } } },
+            legend: { labels: { color: THEME.text, font: { size: 14, weight: '500' }, padding: 20 } },
             tooltip: { backgroundColor: THEME.cardBg, titleColor: THEME.accent, bodyColor: THEME.text, borderColor: THEME.borderColor, borderWidth: 1 }
           },
           scales: {
@@ -401,31 +430,37 @@
       return data.map((_, i) => m * i + b);
     }
 
-    function populateMonthSelect() {
+    function populateMonthSelects() {
       const sessions = getSessions();
-      const months = new Set();
-
-      sessions.forEach(s => {
+      const months = Array.from(new Set(sessions.map(s => {
         const [day, month, year] = s.date.split('/');
-        months.add(`${year}-${month}`);
-      });
+        return `${year}-${month}`;
+      }))).sort().reverse();
 
-      const sorted = Array.from(months).sort().reverse();
-      const select = document.getElementById('monthSelect');
+      const select1 = document.getElementById('month1Select');
+      const select2 = document.getElementById('month2Select');
 
       // Clear existing options
-      while (select.options.length > 0) {
-        select.remove(0);
-      }
+      [select1, select2].forEach(select => {
+        while (select.options.length > 0) {
+          select.remove(0);
+        }
+      });
 
-      // Add options for comparing consecutive months (need at least 2 months)
-      if (sorted.length >= 2) {
-        sorted.slice(0, -1).forEach((m, idx) => {
+      // Populate both with all months
+      months.forEach(m => {
+        [select1, select2].forEach(select => {
           const option = document.createElement('option');
-          option.value = idx;
-          option.textContent = `${getMonthName(m)} vs ${getMonthName(sorted[idx + 1])}`;
+          option.value = m;
+          option.textContent = getMonthName(m);
           select.appendChild(option);
         });
+      });
+
+      // Set defaults: Month 1 = latest, Month 2 = second latest
+      if (months.length >= 2) {
+        select1.value = months[0];
+        select2.value = months[1];
       }
     }
 
@@ -436,20 +471,13 @@
     }
 
     function showMonthImprovements() {
-      const sessions = getSessions();
-      const months = Array.from(new Set(sessions.map(s => {
-        const [day, month, year] = s.date.split('/');
-        return `${year}-${month}`;
-      }))).sort().reverse();
+      const month1 = document.getElementById('month1Select').value;
+      const month2 = document.getElementById('month2Select').value;
 
-      const selectedIdx = parseInt(document.getElementById('monthSelect').value);
-      if (selectedIdx >= months.length - 1) return;
+      if (!month1 || !month2) return;
 
-      const currentMonth = months[selectedIdx];
-      const prevMonth = months[selectedIdx + 1];
-
-      const [curYear, curMonthNum] = currentMonth.split('-');
-      const [prevYear, prevMonthNum] = prevMonth.split('-');
+      const [m1Year, m1MonthNum] = month1.split('-');
+      const [m2Year, m2MonthNum] = month2.split('-');
 
       // Get exercises and their improvements
       const exercises = getAllExercises();
@@ -457,54 +485,113 @@
         const records = getExerciseRecords(ex.name);
 
         // Find last record of each month
-        const curMonthRecords = records.filter(r => {
+        const month1Records = records.filter(r => {
           const [d, m, y] = r.date.split('/');
-          return y === curYear && m === curMonthNum;
+          return y === m1Year && m === m1MonthNum;
         });
 
-        const prevMonthRecords = records.filter(r => {
+        const month2Records = records.filter(r => {
           const [d, m, y] = r.date.split('/');
-          return y === prevYear && m === prevMonthNum;
+          return y === m2Year && m === m2MonthNum;
         });
 
-        if (curMonthRecords.length === 0 || prevMonthRecords.length === 0) return null;
+        if (month1Records.length === 0 || month2Records.length === 0) return null;
 
-        const curAvg = curMonthRecords[curMonthRecords.length - 1].sets.length > 0 ?
-          calculateVolume(curMonthRecords[curMonthRecords.length - 1]) / curMonthRecords[curMonthRecords.length - 1].sets.length : 0;
+        const m1Avg = month1Records[month1Records.length - 1].sets.length > 0 ?
+          calculateVolume(month1Records[month1Records.length - 1]) / month1Records[month1Records.length - 1].sets.length : 0;
 
-        const prevAvg = prevMonthRecords[prevMonthRecords.length - 1].sets.length > 0 ?
-          calculateVolume(prevMonthRecords[prevMonthRecords.length - 1]) / prevMonthRecords[prevMonthRecords.length - 1].sets.length : 0;
+        const m2Avg = month2Records[month2Records.length - 1].sets.length > 0 ?
+          calculateVolume(month2Records[month2Records.length - 1]) / month2Records[month2Records.length - 1].sets.length : 0;
 
-        const improvement = ((curAvg - prevAvg) / prevAvg) * 100;
+        const improvement = ((m1Avg - m2Avg) / m2Avg) * 100;
 
-        return { name: ex.name, improvement, curAvg, prevAvg };
+        return { name: ex.name, improvement, m1Avg, m2Avg };
       }).filter(x => x !== null)
         .sort((a, b) => b.improvement - a.improvement)
         .slice(0, 3);
 
+      const m1Name = getMonthName(month1);
+      const m2Name = getMonthName(month2);
+
       const html = improvements.map((ex, i) => `
-        <div style="padding: 1rem; border-bottom: ${i < improvements.length - 1 ? '1px solid var(--border)' : 'none'}; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 1rem; border-bottom: ${i < improvements.length - 1 ? '1px solid var(--border)' : 'none'}; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem;">
           <div>
             <div style="font-weight: 600; color: var(--accent);">${i + 1}. ${ex.name}</div>
             <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
-              ${ex.prevAvg.toFixed(0)} → ${ex.curAvg.toFixed(0)} per set
+              ${ex.m2Avg.toFixed(0)} → ${ex.m1Avg.toFixed(0)} per set
             </div>
           </div>
-          <div class="stat-change positive">+${ex.improvement.toFixed(1)}%</div>
+          <div class="stat-change ${ex.improvement >= 0 ? 'positive' : 'negative'}" style="white-space: nowrap; padding-left: 1rem;">
+            ${ex.improvement >= 0 ? '+' : ''}${ex.improvement.toFixed(1)}%
+          </div>
         </div>
       `).join('');
 
-      document.getElementById('monthImprovements').innerHTML = html || '<p style="color: var(--text-secondary);">No data available for this period</p>';
+      document.getElementById('monthImprovements').innerHTML = html || '<p style="color: var(--text-secondary);">No data available for this comparison</p>';
+    }
+
+    function showPersonalBests() {
+      const exercises = getAllExercises();
+      let maxWeight = 0;
+      let maxWeightExercise = '';
+      let maxSessionAvg = 0;
+      let maxSessionAvgExercise = '';
+      let bestSingleSetVolume = 0;
+      let bestSingleSetExercise = '';
+
+      for (const ex of exercises) {
+        const records = getExerciseRecords(ex.name);
+        for (const record of records) {
+          for (const set of record.sets) {
+            if (set.weight > maxWeight) {
+              maxWeight = set.weight;
+              maxWeightExercise = ex.name;
+            }
+            const setVolume = set.weight * set.reps;
+            if (setVolume > bestSingleSetVolume) {
+              bestSingleSetVolume = setVolume;
+              bestSingleSetExercise = ex.name;
+            }
+          }
+
+          const avgPerSet = calculateVolume(record) / record.sets.length;
+          if (avgPerSet > maxSessionAvg) {
+            maxSessionAvg = avgPerSet;
+            maxSessionAvgExercise = ex.name;
+          }
+        }
+      }
+
+      const html = `
+        <div class="stat-card">
+          <div class="stat-label">Max Weight</div>
+          <div class="stat-value">${maxWeight}kg</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${maxWeightExercise || '—'}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max Session Avg</div>
+          <div class="stat-value">${maxSessionAvg.toFixed(0)}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">per set • ${maxSessionAvgExercise || '—'}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Single Set</div>
+          <div class="stat-value">${bestSingleSetVolume.toFixed(0)}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">volume • ${bestSingleSetExercise || '—'}</div>
+        </div>
+      `;
+
+      document.getElementById('personalBests').innerHTML = html;
     }
 
     function calculateDashboardStats() {
       const sessions = getSessions();
       const today = new Date();
 
-      // Calculate week start (Sunday)
+      // Calculate week start (Monday)
       const thisWeekStart = new Date(today);
       const day = thisWeekStart.getDay();
-      thisWeekStart.setDate(thisWeekStart.getDate() - day);
+      const diff = thisWeekStart.getDate() - day + (day === 0 ? -6 : 1);
+      thisWeekStart.setDate(diff);
       thisWeekStart.setHours(0, 0, 0, 0);
 
       let setsThisWeek = 0;
