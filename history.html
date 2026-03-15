@@ -58,23 +58,6 @@
       const html = sessions.map((session, index) => {
         const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
 
-        // Calculate if this session improved from previous
-        let delta = null;
-        let deltaPercent = null;
-        if (index > 0) {
-          const prevSession = sessions[index - 1];
-          const prevVolume = prevSession.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
-          delta = volume - prevVolume;
-          deltaPercent = (delta / prevVolume) * 100;
-        }
-
-        const deltaClass = delta === null ? '' : (delta >= 0 ? 'positive' : 'negative');
-        const deltaText = delta === null ? '' : `
-          <div class="stat-change ${deltaClass}">
-            ${delta >= 0 ? '+' : ''}${delta.toFixed(0)} (${deltaPercent >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%)
-          </div>
-        `;
-
         const exercisesHtml = session.exercises.map(ex => `
           <div class="exercise-in-session">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
@@ -102,7 +85,6 @@
                 <div class="session-meta">
                   <span>${session.exercises.length} exercises</span>
                   <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
-                  ${deltaText}
                 </div>
               </div>
               <div style="color: var(--text-secondary); font-size: 1.5rem;">▼</div>
