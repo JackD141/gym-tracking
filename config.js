@@ -1,16 +1,10 @@
 // Configuration for the gym tracker app
 
-// Replace this with your published Google Sheet CSV URL
-// Steps:
-// 1. Open your Google Sheet
-// 2. Go to File → Share → Publish to web
-// 3. Select your data sheet, choose "CSV" format
-// 4. Copy the URL and paste it below
-const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_SHEET_GID';
+// Google Sheet CSV URL for reading workout data
+const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbzd3KScVzIGUT4Df3WBxmYGUxAPLr0o0eck8_X0P98gItjWaMvgxVYANjHlJRDIsByr3yR5fbfp9e/pub?gid=1141952819&single=true&output=csv';
 
-// This will be set during Vercel deployment
-// Add APPS_SCRIPT_URL as an environment variable in Vercel dashboard
-const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || 'https://script.google.com/macros/d/YOUR_SCRIPT_ID/userweb/doPost';
+// Google Apps Script URL for logging workouts (set via Vercel env var)
+const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxfW1DTodLaDKkkn3OEpDhcn-YIA0UfBsV_oabOCQd3AZgo8RxxO5brZizoc3J-drnq/exec';
 
 // Color theme
 const THEME = {

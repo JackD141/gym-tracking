@@ -1,0 +1,14 @@
+Gym Tracker Configuration URLs
+==============================
+
+These URLs are needed to enable Google Sheets integration:
+
+APPS_SCRIPT_URL (for logging workouts):
+https://script.google.com/macros/s/AKfycbxfW1DTodLaDKkkn3OEpDhcn-YIA0UfBsV_oabOCQd3AZgo8RxxO5brZizoc3J-drnq/exec
+
+SHEETS_CSV_URL (for reading workout data):
+https://docs.google.com/spreadsheets/d/e/2PACX-1vSbzd3KScVzIGUT4Df3WBxmYGUxAPLr0o0eck8_X0P98gItjWaMvgxVYANjHlJRDIsByr3yR5fbfp9e/pub?gid=1141952819&single=true&output=csv
+
+Setup Instructions:
+1. Update config.js: Replace SHEETS_CSV_URL placeholder with the URL above
+2. Vercel Dashboard: Add APPS_SCRIPT_URL as an environment variable named APPS_SCRIPT_URL
