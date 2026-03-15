@@ -98,11 +98,36 @@ function parseCSV(csv) {
 }
 
 /**
- * Parse a single CSV row
+ * Parse a single CSV row with proper quoted field handling
  */
 function parseCSVRow(line) {
-  // Simple CSV parser (doesn't handle quoted commas perfectly)
-  const parts = line.split(',').map(p => p.trim());
+  const parts = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator (outside quotes)
+      parts.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  parts.push(current.trim());
+
   if (parts.length < 4) return null;
 
   const parseNum = (str) => {
