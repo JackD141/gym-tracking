@@ -26,6 +26,13 @@
       <h1>Log a Workout</h1>
       <p>Record your exercises and sets</p>
 
+      <div style="background: #e8f4f8; border-left: 4px solid #0066cc; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
+        <p style="margin: 0; color: #0066cc;">
+          <strong>Or add directly to Google Sheets:</strong>
+          <a href="https://docs.google.com/spreadsheets/d/1GL28Y5q3Owv5nr3CkgXtSyVNhW_kTfGNYOooDs-cU7U/edit?gid=1141952819" style="color: #0066cc; font-weight: 600; text-decoration: none;" target="_blank">Open your workouts spreadsheet →</a>
+        </p>
+      </div>
+
       <div class="card" style="max-width: 800px;">
         <form id="workoutForm">
           <!-- Date -->
@@ -53,6 +60,16 @@
         <div id="statusMessage" style="margin-top: 1.5rem;"></div>
       </div>
 
+      <!-- Google Sheet Link -->
+      <div class="card" style="max-width: 800px; margin-top: 2rem; background: rgba(66, 133, 244, 0.05); border-left: 4px solid #4285f4;">
+        <p style="margin: 0; color: var(--text-secondary);">
+          Or log manually directly in the sheet:
+        </p>
+        <a href="https://docs.google.com/spreadsheets/d/1GL28Y5q3Owv5nr3CkgXtSyVNhW_kTfGNYOooDs-cU7U/edit?gid=1141952819#gid=1141952819" target="_blank" style="display: inline-block; margin-top: 0.5rem; padding: 0.75rem 1.25rem; background: #4285f4; color: white; border-radius: 4px; text-decoration: none; font-weight: 500;">
+          Open Google Sheet →
+        </a>
+      </div>
+
       <!-- Help -->
       <div class="card" style="max-width: 800px; margin-top: 2rem;">
         <h3>How to Log</h3>
@@ -72,6 +89,7 @@
     <p>Jack's Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
   </footer>
 
+  <script src="/config.js"></script>
   <script src="/data.js"></script>
   <script>
     let exerciseCount = 0;

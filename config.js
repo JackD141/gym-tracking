@@ -20,7 +20,3 @@ const THEME = {
   warning: '#ffaa00'
 };
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { SHEETS_CSV_URL, APPS_SCRIPT_URL, THEME };
-}
