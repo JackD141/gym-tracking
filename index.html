@@ -168,11 +168,18 @@
           input.value = e.target.dataset.exercise;
           suggestions.style.display = 'none';
           showFocusChart(e.target.dataset.exercise);
+          showPersonalBestsForExercise(e.target.dataset.exercise);
         }
       });
 
       input.addEventListener('blur', () => {
         setTimeout(() => { suggestions.style.display = 'none'; }, 100);
+      });
+
+      input.addEventListener('change', () => {
+        if (input.value) {
+          showPersonalBestsForExercise(input.value);
+        }
       });
 
       // Volume weeks selector
@@ -253,10 +260,11 @@
         return;
       }
 
-      // Calculate normalized per-set volumes
+      // Calculate normalized per-set volumes and max weight
       const normalized = records.map(r => {
         const avgPerSet = r.sets.length > 0 ? calculateVolume(r) / r.sets.length : 0;
-        return { date: r.date, volume: avgPerSet, setCount: r.sets.length };
+        const maxWeight = r.sets.length > 0 ? Math.max(...r.sets.map(s => s.weight)) : 0;
+        return { date: r.date, volume: avgPerSet, maxWeight: maxWeight, setCount: r.sets.length };
       });
 
       // Stats
@@ -291,18 +299,34 @@
         type: 'line',
         data: {
           labels: normalized.map(d => formatDate(d.date)),
-          datasets: [{
-            label: `Avg Volume per Set (${exerciseName})`,
-            data: normalized.map(d => d.volume),
-            borderColor: THEME.accent,
-            backgroundColor: `rgba(0, 102, 204, 0.1)`,
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: THEME.accent,
-            pointBorderWidth: 2,
-            pointRadius: 5
-          }]
+          datasets: [
+            {
+              label: `Avg Volume per Set`,
+              data: normalized.map(d => d.volume),
+              borderColor: THEME.accent,
+              backgroundColor: `rgba(0, 102, 204, 0.1)`,
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: THEME.accent,
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              yAxisID: 'y'
+            },
+            {
+              label: `Max Weight per Set`,
+              data: normalized.map(d => d.maxWeight),
+              borderColor: THEME.warning || '#ff9900',
+              backgroundColor: `rgba(255, 153, 0, 0.05)`,
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: THEME.warning || '#ff9900',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              yAxisID: 'y1'
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -328,7 +352,8 @@
                     text += `Set ${idx + 1}: ${set.weight}kg × ${set.reps} = ${vol}\n`;
                   });
                   const avgVol = calculateVolume(record) / record.sets.length;
-                  text += `\nAvg per set: ${avgVol.toFixed(0)}`;
+                  const maxWt = Math.max(...record.sets.map(s => s.weight));
+                  text += `\nAvg per set: ${avgVol.toFixed(0)} | Max weight: ${maxWt}kg`;
                   return text;
                 }
               }
@@ -336,7 +361,20 @@
           },
           scales: {
             x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
-            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } }
+            y: {
+              type: 'linear',
+              position: 'left',
+              grid: { color: THEME.borderColor },
+              ticks: { color: THEME.textSecondary },
+              title: { display: true, text: 'Avg Volume per Set', color: THEME.text }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: THEME.textSecondary },
+              title: { display: true, text: 'Max Weight (kg)', color: THEME.text }
+            }
           }
         }
       });
@@ -531,52 +569,65 @@
     }
 
     function showPersonalBests() {
-      const exercises = getAllExercises();
+      // Show global personal bests on page load
+      const html = `
+        <div class="stat-card">
+          <div class="stat-label">Max Weight</div>
+          <div class="stat-value">—</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Search an exercise</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max Session Avg</div>
+          <div class="stat-value">—</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">per set</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Single Set</div>
+          <div class="stat-value">—</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">volume</div>
+        </div>
+      `;
+      document.getElementById('personalBests').innerHTML = html;
+    }
+
+    function showPersonalBestsForExercise(exerciseName) {
+      const records = getExerciseRecords(exerciseName);
       let maxWeight = 0;
-      let maxWeightExercise = '';
       let maxSessionAvg = 0;
-      let maxSessionAvgExercise = '';
       let bestSingleSetVolume = 0;
-      let bestSingleSetExercise = '';
 
-      for (const ex of exercises) {
-        const records = getExerciseRecords(ex.name);
-        for (const record of records) {
-          for (const set of record.sets) {
-            if (set.weight > maxWeight) {
-              maxWeight = set.weight;
-              maxWeightExercise = ex.name;
-            }
-            const setVolume = set.weight * set.reps;
-            if (setVolume > bestSingleSetVolume) {
-              bestSingleSetVolume = setVolume;
-              bestSingleSetExercise = ex.name;
-            }
+      for (const record of records) {
+        for (const set of record.sets) {
+          if (set.weight > maxWeight) {
+            maxWeight = set.weight;
           }
+          const setVolume = set.weight * set.reps;
+          if (setVolume > bestSingleSetVolume) {
+            bestSingleSetVolume = setVolume;
+          }
+        }
 
-          const avgPerSet = calculateVolume(record) / record.sets.length;
-          if (avgPerSet > maxSessionAvg) {
-            maxSessionAvg = avgPerSet;
-            maxSessionAvgExercise = ex.name;
-          }
+        const avgPerSet = calculateVolume(record) / record.sets.length;
+        if (avgPerSet > maxSessionAvg) {
+          maxSessionAvg = avgPerSet;
         }
       }
 
       const html = `
         <div class="stat-card">
           <div class="stat-label">Max Weight</div>
-          <div class="stat-value">${maxWeight}kg</div>
-          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${maxWeightExercise || '—'}</div>
+          <div class="stat-value">${maxWeight || '—'}${maxWeight ? 'kg' : ''}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${exerciseName}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Max Session Avg</div>
-          <div class="stat-value">${maxSessionAvg.toFixed(0)}</div>
-          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">per set • ${maxSessionAvgExercise || '—'}</div>
+          <div class="stat-value">${maxSessionAvg.toFixed(0) || '—'}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">per set</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Best Single Set</div>
-          <div class="stat-value">${bestSingleSetVolume.toFixed(0)}</div>
-          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">volume • ${bestSingleSetExercise || '—'}</div>
+          <div class="stat-value">${bestSingleSetVolume.toFixed(0) || '—'}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">volume</div>
         </div>
       `;
 
