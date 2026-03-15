@@ -311,21 +311,20 @@
       });
 
       input.addEventListener('blur', () => {
-        setTimeout(() => suggestionsDiv.style.display = 'none', 100);
-      });
-
-      input.addEventListener('change', () => {
-        const match = exercises.find(ex => ex.name === input.value);
-        if (match) {
-          musclesInput.value = match.muscles;
-          // Use exercise tips if available, otherwise use historical notes
-          const tips = exerciseTips[match.name];
-          if (tips) {
-            notesInput.value = tips.tips.join('\n');
-          } else {
-            notesInput.value = match.formNotes;
+        // When you leave the field, try to match the exercise and auto-fill muscles/notes
+        setTimeout(() => {
+          const match = exercises.find(ex => ex.name === input.value);
+          if (match) {
+            musclesInput.value = match.muscles;
+            const tips = exerciseTips[match.name];
+            if (tips) {
+              notesInput.value = tips.tips.join('\n');
+            } else {
+              notesInput.value = match.formNotes;
+            }
           }
-        }
+          suggestionsDiv.style.display = 'none';
+        }, 100);
       });
     }
 
