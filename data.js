@@ -8,21 +8,34 @@
 let allData = [];
 
 /**
- * Initialize data - load seed data and combine split exercises
+ * Initialize data - load from Google Sheets if configured, fall back to seed.json
  */
 async function initializeData() {
   try {
+    // Try to load from Google Sheets first (if SHEETS_CSV_URL is configured)
+    if (typeof SHEETS_CSV_URL !== 'undefined' && !SHEETS_CSV_URL.includes('YOUR_SHEET_ID')) {
+      try {
+        let data = await fetchFromGoogleSheets(SHEETS_CSV_URL);
+        if (data && data.length > 0) {
+          data = combineDuplicateExercises(data);
+          allData = data;
+          console.log(`Loaded ${allData.length} exercises from Google Sheets`);
+          return allData;
+        }
+      } catch (sheetsError) {
+        console.warn('Could not load from Google Sheets, falling back to seed data:', sheetsError);
+      }
+    }
+
+    // Fall back to seed.json
     const response = await fetch('/data/seed.json');
     let data = await response.json();
-
-    // Combine duplicate exercises on the same date
     data = combineDuplicateExercises(data);
-
     allData = data;
     console.log(`Loaded ${allData.length} exercises from seed data`);
     return allData;
   } catch (error) {
-    console.error('Error loading seed data:', error);
+    console.error('Error loading data:', error);
     return [];
   }
 }
