@@ -1,0 +1,175 @@
+[
+  {
+    "date": "13/12/2025",
+    "exercise": "Hack squats",
+    "muscles": "Quads, Glutes, Hamstrings",
+    "formNotes": "Feet shoulder-width. Don't lock out at top. Control the descent.",
+    "sets": [
+      {"weight": 30, "reps": 8},
+      {"weight": 30, "reps": 8},
+      {"weight": 30, "reps": 8}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Leg extensions",
+    "muscles": "Quads",
+    "formNotes": "Push up, down slowly, i think back of machine was on setting 5",
+    "sets": [
+      {"weight": 32, "reps": 5},
+      {"weight": 25, "reps": 8},
+      {"weight": 25, "reps": 8}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Calf extension tiptoe thing",
+    "muscles": "Calves (Gastrocnemius, Soleus)",
+    "formNotes": "Full range through ball of foot. Slow and controlled.",
+    "sets": [
+      {"weight": 15, "reps": 5},
+      {"weight": 15, "reps": 5},
+      {"weight": 15, "reps": 5}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Incline chest press",
+    "muscles": "Upper Chest, Front Delts, Triceps",
+    "formNotes": "Incline bench. Retract scapula. Press up and slightly back over upper chest.",
+    "sets": [
+      {"weight": 40, "reps": 9},
+      {"weight": 40, "reps": 9},
+      {"weight": 40, "reps": 9}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Smith machine press",
+    "muscles": "Upper Chest, Front Delts, Triceps",
+    "formNotes": "Seated, retract scapula. Press overhead, full ROM.",
+    "sets": [
+      {"weight": 20, "reps": 10},
+      {"weight": 20, "reps": 10},
+      {"weight": 20, "reps": 10}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Lat pull down normal",
+    "muscles": "Lats, Upper back, Biceps",
+    "formNotes": "Pull down a bit then get seated under cuchion and ready",
+    "sets": [
+      {"weight": 39, "reps": 8},
+      {"weight": 39, "reps": 8},
+      {"weight": 39, "reps": 8}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Lat pull down reverse",
+    "muscles": "Lats, Upper back, Biceps",
+    "formNotes": "Pull down a bit then get seated under cuchion and ready",
+    "sets": [
+      {"weight": 39, "reps": 9},
+      {"weight": 39, "reps": 9},
+      {"weight": 39, "reps": 9}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Triceps curl",
+    "muscles": "Triceps",
+    "formNotes": "Triceps machine height 17, used the trapezium kind of bar, keep everything fixed just hinged at elbows",
+    "sets": [
+      {"weight": 23, "reps": 15},
+      {"weight": 23, "reps": 15},
+      {"weight": 23, "reps": 15}
+    ]
+  },
+  {
+    "date": "13/12/2025",
+    "exercise": "Shoulder press",
+    "muscles": "Front delts, Side delts, Triceps",
+    "formNotes": "Straightforward, seat higher is a bit better to get over it for full ROM.",
+    "sets": [
+      {"weight": 25, "reps": 9},
+      {"weight": 25, "reps": 9},
+      {"weight": 25, "reps": 9}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Prone leg curl",
+    "muscles": "Hamstrings",
+    "formNotes": "I wasn't quite symmetrical, slightly out of the machine",
+    "sets": [
+      {"weight": 18, "reps": 8},
+      {"weight": 18, "reps": 10}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Seated leg curls",
+    "muscles": "Hamtrings, Calves, Glutes",
+    "formNotes": "Curl fully, pause at peak contraction. Slow controlled return to extension.",
+    "sets": [
+      {"weight": 18, "reps": 10},
+      {"weight": 25, "reps": 8}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Chest cable flyes",
+    "muscles": "Chest (mid/inner), Front delts",
+    "formNotes": "Height 16 or so, black handle grips, pull cables down, take a step out, lean over a bit, not too close to knee",
+    "sets": [
+      {"weight": 3.4, "reps": 15},
+      {"weight": 5.7, "reps": 15},
+      {"weight": 7.9, "reps": 12}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Divergent seated row",
+    "muscles": "Mid-back, Lats, Rear Delts",
+    "formNotes": "Chest pad firm. Drive elbows back and wide. Squeeze mid-back, full arm extension.",
+    "sets": [
+      {"weight": 23, "reps": 12},
+      {"weight": 23, "reps": 12},
+      {"weight": 27, "reps": 12}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Lat pull down reverse",
+    "muscles": "Lats, Upper back, Biceps",
+    "formNotes": "Pull down a bit then get seated under cuchion and ready",
+    "sets": [
+      {"weight": 39, "reps": 10},
+      {"weight": 45, "reps": 12}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Bicep cable curl",
+    "muscles": "Biceps",
+    "formNotes": "Hinge at the elbow, fingers on bicep, medium height on machine?",
+    "sets": [
+      {"weight": 5.7, "reps": 10},
+      {"weight": 7.9, "reps": 13},
+      {"weight": 7.9, "reps": 11}
+    ]
+  },
+  {
+    "date": "20/12/2025",
+    "exercise": "Squats",
+    "muscles": "Quads, Glutes, Hamstrings, Core",
+    "formNotes": "Feet shoulder-width, toes slightly out. Knees track toes. Hit parallel minimum.",
+    "sets": [
+      {"weight": 15, "reps": 15},
+      {"weight": 15, "reps": 15},
+      {"weight": 15, "reps": 15}
+    ]
+  }
+]

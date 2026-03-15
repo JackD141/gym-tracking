@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Tracker — Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div style="flex: 1;">
+          <h1 style="margin: 0; font-size: 1.5rem;">💪 Gym Tracker</h1>
+        </div>
+        <a href="/" class="active">Dashboard</a>
+        <a href="/log.html">Log Workout</a>
+        <a href="/progress.html">Progress</a>
+        <a href="/history.html">History</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Dashboard</h1>
+      <p>Your gym workout summary and stats</p>
+
+      <!-- Stats Grid -->
+      <div class="card-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value" id="totalSessions">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Month</div>
+          <div class="stat-value" id="sessionsThisMonth">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Days Since Last Session</div>
+          <div class="stat-value" id="daysSince">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Volume This Week</div>
+          <div class="stat-value" id="volumeThisWeek">—</div>
+          <div id="volumeChange" class="stat-change"></div>
+        </div>
+      </div>
+
+      <!-- Top Improved Exercises -->
+      <div class="card">
+        <h2>Top Improvements</h2>
+        <div id="topImprovements"></div>
+      </div>
+
+      <!-- Weekly Volume Chart -->
+      <div class="card">
+        <h2>Recent Activity</h2>
+        <div class="chart-container">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <h2>Quick Actions</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="/log.html" class="btn">Log New Workout</a>
+          <a href="/progress.html" class="btn secondary">View Progress</a>
+          <a href="/history.html" class="btn secondary">View History</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
+  </footer>
+
+  <script src="/data.js"></script>
+  <script src="/charts.js"></script>
+  <script>
+    let weeklyChart;
+
+    async function loadDashboard() {
+      // Initialize data
+      await initializeData();
+
+      // Update stats
+      const stats = calculateDashboardStats();
+      document.getElementById('totalSessions').textContent = stats.totalSessions;
+      document.getElementById('sessionsThisMonth').textContent = stats.sessionsThisMonth;
+      document.getElementById('daysSince').textContent =
+        stats.daysSinceLastSession === null ? '—' : `${stats.daysSinceLastSession}d`;
+
+      const volumeFormatted = formatNumber(stats.volumeThisWeek);
+      document.getElementById('volumeThisWeek').textContent = volumeFormatted;
+
+      const changeEl = document.getElementById('volumeChange');
+      if (stats.volumeLastWeek > 0) {
+        const change = stats.volumeChange;
+        const className = change >= 0 ? 'positive' : 'negative';
+        const symbol = change >= 0 ? '+' : '';
+        changeEl.className = `stat-change ${className}`;
+        changeEl.textContent = `${symbol}${change.toFixed(1)}%`;
+      } else {
+        changeEl.style.display = 'none';
+      }
+
+      // Top improvements
+      const topImprovements = getTopImprovedExercises(3);
+      const improvementsHtml = topImprovements
+        .map(ex => `
+          <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: var(--accent);">${ex.name}</div>
+              <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                ${formatNumber(ex.firstVolume)} → ${formatNumber(ex.lastVolume)}
+              </div>
+            </div>
+            <div class="stat-change positive">+${ex.improvement.toFixed(1)}%</div>
+          </div>
+        `)
+        .join('');
+
+      document.getElementById('topImprovements').innerHTML = improvementsHtml ||
+        '<p style="color: var(--text-secondary);">Not enough data yet</p>';
+
+      // Weekly volume chart
+      const sessions = getSessions();
+      const weeklyData = calculateWeeklyVolume(sessions);
+      weeklyChart = createWeeklyVolumeChart('weeklyChart', weeklyData);
+    }
+
+    /**
+     * Calculate volume by week
+     */
+    function calculateWeeklyVolume(sessions) {
+      const today = new Date();
+      const weeks = [];
+
+      for (let i = 0; i < 4; i++) {
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() - i * 7);
+        const weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+
+        let volume = 0;
+        sessions.forEach(session => {
+          const sessionDate = parseDate(session.date);
+          if (sessionDate >= weekStart && sessionDate <= weekEnd) {
+            volume += session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
+          }
+        });
+
+        weeks.unshift({
+          week: `Week ${4 - i}`,
+          volume: volume
+        });
+      }
+
+      return weeks;
+    }
+
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "buildCommand": "echo 'No build step needed'",
+  "outputDirectory": ".",
+  "framework": "static",
+  "functions": {
+    "api/**/*.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "APPS_SCRIPT_URL": {
+      "description": "URL of deployed Google Apps Script Web App for logging workouts"
+    }
+  }
+}

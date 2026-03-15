@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Tracker — History</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div style="flex: 1;">
+          <h1 style="margin: 0; font-size: 1.5rem;">💪 Gym Tracker</h1>
+        </div>
+        <a href="/">Dashboard</a>
+        <a href="/log.html">Log Workout</a>
+        <a href="/progress.html">Progress</a>
+        <a href="/history.html" class="active">History</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Workout History</h1>
+      <p>All your past gym sessions</p>
+
+      <div id="sessionsContainer"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
+  </footer>
+
+  <script src="/data.js"></script>
+  <script>
+    async function loadHistory() {
+      await initializeData();
+
+      const sessions = getSessions();
+      const container = document.getElementById('sessionsContainer');
+
+      if (sessions.length === 0) {
+        container.innerHTML = '<div class="card"><p style="color: var(--text-secondary); text-align: center;">No sessions logged yet</p></div>';
+        return;
+      }
+
+      const html = sessions.map((session, index) => {
+        const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
+
+        // Calculate if this session improved from previous
+        let delta = null;
+        let deltaPercent = null;
+        if (index > 0) {
+          const prevSession = sessions[index - 1];
+          const prevVolume = prevSession.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
+          delta = volume - prevVolume;
+          deltaPercent = (delta / prevVolume) * 100;
+        }
+
+        const deltaClass = delta === null ? '' : (delta >= 0 ? 'positive' : 'negative');
+        const deltaText = delta === null ? '' : `
+          <div class="stat-change ${deltaClass}">
+            ${delta >= 0 ? '+' : ''}${delta.toFixed(0)} (${deltaPercent >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%)
+          </div>
+        `;
+
+        const exercisesHtml = session.exercises.map(ex => `
+          <div class="exercise-in-session">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+              <div>
+                <div style="font-weight: 600; color: var(--accent);">${ex.exercise}</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">${ex.muscles}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 600; color: var(--accent);">${calculateVolume(ex).toFixed(0)}</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">volume</div>
+              </div>
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+              ${ex.sets.map(s => `<span style="display: inline-block; margin-right: 0.75rem;"><strong>${s.weight}</strong> kg × <strong>${s.reps}</strong></span>`).join('')}
+            </div>
+            ${ex.formNotes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; font-style: italic;">"${ex.formNotes}"</div>` : ''}
+          </div>
+        `).join('');
+
+        return `
+          <div class="session" id="session-${index}">
+            <div class="session-header" onclick="toggleSession(${index})">
+              <div>
+                <div class="session-date">${formatDate(session.date)}</div>
+                <div class="session-meta">
+                  <span>${session.exercises.length} exercises</span>
+                  <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
+                  ${deltaText}
+                </div>
+              </div>
+              <div style="color: var(--text-secondary); font-size: 1.5rem;">▼</div>
+            </div>
+            <div class="session-body">
+              ${exercisesHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function toggleSession(index) {
+      const session = document.getElementById(`session-${index}`);
+      session.classList.toggle('expanded');
+    }
+
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadHistory);
+  </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Tracker — Log Workout</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div style="flex: 1;">
+          <h1 style="margin: 0; font-size: 1.5rem;">💪 Gym Tracker</h1>
+        </div>
+        <a href="/">Dashboard</a>
+        <a href="/log.html" class="active">Log Workout</a>
+        <a href="/progress.html">Progress</a>
+        <a href="/history.html">History</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Log a Workout</h1>
+      <p>Record your exercises and sets</p>
+
+      <div class="card" style="max-width: 800px;">
+        <form id="workoutForm">
+          <!-- Date -->
+          <div class="form-group">
+            <label for="workoutDate">Session Date</label>
+            <input type="date" id="workoutDate" required>
+          </div>
+
+          <!-- Exercises -->
+          <div id="exercisesContainer"></div>
+
+          <!-- Add Exercise Button -->
+          <button type="button" class="btn secondary mb-3" id="addExerciseBtn">
+            + Add Exercise
+          </button>
+
+          <!-- Submit -->
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn">Save Workout</button>
+            <button type="reset" class="btn secondary">Clear</button>
+          </div>
+        </form>
+
+        <!-- Status Message -->
+        <div id="statusMessage" style="margin-top: 1.5rem;"></div>
+      </div>
+
+      <!-- Help -->
+      <div class="card" style="max-width: 800px; margin-top: 2rem;">
+        <h3>How to Log</h3>
+        <ol style="color: var(--text-secondary); line-height: 1.8;">
+          <li>Set your workout date</li>
+          <li>Click "Add Exercise" for each exercise you performed</li>
+          <li>Enter exercise name, muscle groups, and form notes</li>
+          <li>Add your sets (weight × reps) - up to 5 per exercise</li>
+          <li>Click "Save Workout" to log everything</li>
+          <li>Your data will be saved to Google Sheets automatically</li>
+        </ol>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
+  </footer>
+
+  <script src="/data.js"></script>
+  <script>
+    let exerciseCount = 0;
+    let exercises = [];
+
+    async function initPage() {
+      // Set today's date as default
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('workoutDate').value = `${yyyy}-${mm}-${dd}`;
+
+      // Load data for autocomplete
+      await initializeData();
+      exercises = getAllExercises();
+
+      // Add first exercise form
+      addExerciseForm();
+    }
+
+    /**
+     * Add a new exercise form
+     */
+    function addExerciseForm() {
+      exerciseCount++;
+      const id = `exercise-${exerciseCount}`;
+      const container = document.getElementById('exercisesContainer');
+
+      const html = `
+        <div class="card" id="card-${id}" style="margin-bottom: 1.5rem; background: rgba(0, 212, 255, 0.03);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0;">Exercise ${exerciseCount}</h3>
+            <button type="button" class="remove-btn" onclick="removeExercise('${id}')">Remove</button>
+          </div>
+
+          <div class="form-group">
+            <label for="${id}-name">Exercise Name</label>
+            <input
+              type="text"
+              id="${id}-name"
+              class="exercise-autocomplete"
+              placeholder="e.g., Bench press, Squats..."
+              required
+              autocomplete="off"
+            >
+            <div id="${id}-suggestions" style="position: absolute; z-index: 10; width: 100%; margin-top: -1rem; display: none;"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="${id}-muscles">Muscle Groups</label>
+            <input type="text" id="${id}-muscles" placeholder="e.g., Chest, Front Delts, Triceps">
+          </div>
+
+          <div class="form-group">
+            <label for="${id}-notes">Form Notes (Optional)</label>
+            <textarea id="${id}-notes" placeholder="Any notes about form, machine settings, etc."></textarea>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label>Sets</label>
+            <div id="${id}-sets" class="sets-container"></div>
+            <button type="button" class="btn secondary" onclick="addSet('${id}')" style="margin-top: 1rem;">
+              + Add Set
+            </button>
+          </div>
+        </div>
+      `;
+
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      container.appendChild(div);
+
+      // Setup autocomplete
+      setupAutocomplete(`${id}-name`, `${id}-muscles`, `${id}-notes`);
+
+      // Add first set
+      addSet(id);
+    }
+
+    /**
+     * Add a set to an exercise
+     */
+    function addSet(exerciseId) {
+      const exerciseNum = exerciseId.split('-')[1];
+      const container = document.getElementById(`${exerciseId}-sets`);
+      const setNum = container.children.length + 1;
+      const setId = `${exerciseId}-set${setNum}`;
+
+      const html = `
+        <div class="set-row" id="${setId}">
+          <div class="set-input-group">
+            <label>Set ${setNum}</label>
+            <input type="number" class="weight-input" placeholder="kg" step="0.5" min="0">
+            <span style="color: var(--text-secondary);">×</span>
+            <input type="number" class="reps-input" placeholder="reps" step="1" min="0" max="100">
+          </div>
+          <button type="button" class="remove-btn" onclick="removeSet('${setId}')">Remove</button>
+        </div>
+      `;
+
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      container.appendChild(div);
+    }
+
+    /**
+     * Remove an exercise
+     */
+    function removeExercise(exerciseId) {
+      const card = document.getElementById(`card-${exerciseId}`);
+      if (card) {
+        card.remove();
+        // Re-number exercises
+        renumberExercises();
+      }
+    }
+
+    /**
+     * Remove a set
+     */
+    function removeSet(setId) {
+      const setRow = document.getElementById(setId);
+      if (setRow) {
+        setRow.remove();
+      }
+    }
+
+    /**
+     * Re-number exercises
+     */
+    function renumberExercises() {
+      const cards = document.querySelectorAll('[id^="card-exercise-"]');
+      cards.forEach((card, index) => {
+        const h3 = card.querySelector('h3');
+        h3.textContent = `Exercise ${index + 1}`;
+      });
+    }
+
+    /**
+     * Setup autocomplete for exercise name
+     */
+    function setupAutocomplete(nameId, musclesId, notesId) {
+      const input = document.getElementById(nameId);
+      const musclesInput = document.getElementById(musclesId);
+      const notesInput = document.getElementById(notesId);
+
+      input.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        if (value.length === 0) return;
+
+        const matches = exercises.filter(ex =>
+          ex.name.toLowerCase().includes(value)
+        );
+
+        if (matches.length > 0 && value.length > 2) {
+          input.value = matches[0].name;
+          musclesInput.value = matches[0].muscles;
+          notesInput.value = matches[0].formNotes;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      input.addEventListener('change', () => {
+        const match = exercises.find(ex => ex.name === input.value);
+        if (match) {
+          musclesInput.value = match.muscles;
+          notesInput.value = match.formNotes;
+        }
+      });
+    }
+
+    /**
+     * Format date for Google Sheets (DD/MM/YYYY)
+     */
+    function formatDateForSheet(dateStr) {
+      const [yyyy, mm, dd] = dateStr.split('-');
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    /**
+     * Submit workout
+     */
+    document.getElementById('workoutForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const statusMsg = document.getElementById('statusMessage');
+      const date = document.getElementById('workoutDate').value;
+      const formattedDate = formatDateForSheet(date);
+
+      // Collect all exercises
+      const workoutData = [];
+      const cards = document.querySelectorAll('[id^="card-exercise-"]');
+
+      cards.forEach(card => {
+        const cardId = card.id.replace('card-', '');
+        const name = document.getElementById(`${cardId}-name`).value.trim();
+        const muscles = document.getElementById(`${cardId}-muscles`).value.trim();
+        const notes = document.getElementById(`${cardId}-notes`).value.trim();
+
+        if (!name) return;
+
+        const setsContainer = document.getElementById(`${cardId}-sets`);
+        const setRows = setsContainer.querySelectorAll('[id^="' + cardId + '-set"]');
+
+        const sets = [];
+        setRows.forEach(setRow => {
+          const weight = parseFloat(setRow.querySelector('.weight-input').value);
+          const reps = parseInt(setRow.querySelector('.reps-input').value);
+
+          if (!isNaN(weight) && !isNaN(reps) && weight > 0 && reps > 0) {
+            sets.push({ weight, reps });
+          }
+        });
+
+        if (sets.length > 0) {
+          workoutData.push({ name, muscles, notes, sets });
+        }
+      });
+
+      if (workoutData.length === 0) {
+        statusMsg.innerHTML = '<div style="color: var(--danger);">Please add at least one exercise with sets</div>';
+        return;
+      }
+
+      // Try to send to backend
+      statusMsg.innerHTML = '<div style="color: var(--text-secondary); display: flex; gap: 0.5rem; align-items: center;"><div class="spinner"></div> Saving...</div>';
+
+      try {
+        const response = await fetch('/api/log-workout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: formattedDate, exercises: workoutData })
+        });
+
+        if (response.ok) {
+          statusMsg.innerHTML = `
+            <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid var(--success); border-radius: 8px; padding: 1rem; color: var(--success);">
+              ✓ Workout logged successfully! Your data has been sent to Google Sheets.
+            </div>
+          `;
+          document.getElementById('workoutForm').reset();
+          document.getElementById('exercisesContainer').innerHTML = '';
+          exerciseCount = 0;
+          addExerciseForm();
+          initPage();
+        } else {
+          statusMsg.innerHTML = `
+            <div style="background: rgba(255, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 1rem; color: var(--danger);">
+              ⚠ Could not save to Sheets. Make sure you've set up the Google Apps Script.
+              <br><small>Workout data: ${JSON.stringify(workoutData, null, 2)}</small>
+            </div>
+          `;
+        }
+      } catch (error) {
+        statusMsg.innerHTML = `
+          <div style="background: rgba(255, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 1rem; color: var(--danger);">
+            Error: ${error.message}
+            <br><small>This is expected if the serverless function isn't set up yet.</small>
+          </div>
+        `;
+      }
+    });
+
+    document.getElementById('addExerciseBtn').addEventListener('click', addExerciseForm);
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>
