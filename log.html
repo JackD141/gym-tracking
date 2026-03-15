@@ -248,7 +248,7 @@
       const input = document.getElementById(nameId);
       const musclesInput = document.getElementById(musclesId);
       const notesInput = document.getElementById(notesId);
-      const suggestionsDiv = document.getElementById(`${nameId}-suggestions`);
+      const suggestionsDiv = document.getElementById(`${nameId.replace('-name', '')}-suggestions`);
 
       function showSuggestions(matches) {
         if (matches.length === 0) {
@@ -279,7 +279,7 @@
         const input = document.getElementById(nameId);
         const musclesInput = document.getElementById(nameId.replace('-name', '-muscles'));
         const notesInput = document.getElementById(nameId.replace('-name', '-notes'));
-        const suggestionsDiv = document.getElementById(`${nameId}-suggestions`);
+        const suggestionsDiv = document.getElementById(`${nameId.replace('-name', '')}-suggestions`);
 
         input.value = exerciseName;
         musclesInput.value = muscles;
