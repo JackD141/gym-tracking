@@ -254,6 +254,41 @@ function getBest1RM(exerciseName) {
 }
 
 /**
+ * Calculate workout frequency by week
+ */
+function calculateFrequency() {
+  const sessions = getSessions();
+  const weekMap = {};
+
+  sessions.forEach(session => {
+    const sessionDate = parseDate(session.date);
+    const weekStart = new Date(sessionDate);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const weekLabel = formatDate(`${weekStart.getDate()}/${weekStart.getMonth() + 1}/${weekStart.getFullYear()}`);
+
+    if (!weekMap[weekLabel]) {
+      weekMap[weekLabel] = {
+        week: weekLabel,
+        count: 0,
+        exerciseSets: {}
+      };
+    }
+
+    weekMap[weekLabel].count++;
+
+    session.exercises.forEach(ex => {
+      const name = ex.exercise;
+      if (!weekMap[weekLabel].exerciseSets[name]) {
+        weekMap[weekLabel].exerciseSets[name] = 0;
+      }
+      weekMap[weekLabel].exerciseSets[name] += ex.sets.length;
+    });
+  });
+
+  return Object.values(weekMap).reverse();
+}
+
+/**
  * Calculate stats for a dashboard
  */
 function calculateDashboardStats() {
@@ -264,22 +299,22 @@ function calculateDashboardStats() {
   const lastLastWeek = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
 
   let sessionsThisMonth = 0;
-  let volumeThisWeek = 0;
-  let volumeLastWeek = 0;
+  let setsThisWeek = 0;
+  let setsLastWeek = 0;
   let daysSinceLastSession = null;
 
   sessions.forEach(session => {
     const sessionDate = parseDate(session.date);
-    const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
+    const sets = session.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
 
     if (sessionDate >= thisMonth) {
       sessionsThisMonth++;
     }
 
     if (sessionDate >= lastWeek) {
-      volumeThisWeek += volume;
+      setsThisWeek += sets;
     } else if (sessionDate >= lastLastWeek) {
-      volumeLastWeek += volume;
+      setsLastWeek += sets;
     }
 
     if (daysSinceLastSession === null) {
@@ -290,9 +325,9 @@ function calculateDashboardStats() {
   return {
     totalSessions: sessions.length,
     sessionsThisMonth,
-    volumeThisWeek,
-    volumeLastWeek,
-    volumeChange: volumeLastWeek > 0 ? ((volumeThisWeek - volumeLastWeek) / volumeLastWeek * 100) : 0,
+    setsThisWeek,
+    setsLastWeek,
+    setsChange: setsLastWeek > 0 ? ((setsThisWeek - setsLastWeek) / setsLastWeek * 100) : 0,
     daysSinceLastSession,
     lastSessionDate: sessions.length > 0 ? sessions[0].date : null
   };
