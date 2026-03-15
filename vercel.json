@@ -9,8 +9,6 @@
     }
   },
   "env": {
-    "APPS_SCRIPT_URL": {
-      "description": "URL of deployed Google Apps Script Web App for logging workouts"
-    }
+    "APPS_SCRIPT_URL": "@apps_script_url"
   }
 }
