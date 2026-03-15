@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jack's Gym Tracker — Form Tips</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div style="flex: 1;">
+          <h1 style="margin: 0; font-size: 1.5rem;">💪 Jack's Gym Tracker</h1>
+        </div>
+        <a href="/">Dashboard</a>
+        <a href="/log.html">Log Workout</a>
+        <a href="/tips.html" class="active">Form Tips</a>
+        <a href="/history.html">History</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Exercise Form Tips</h1>
+      <p>Proper form prevents injury and maximizes results. Use these checklists when logging workouts.</p>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+        <label for="exerciseFilter" style="margin-bottom: 0;">Filter exercises:</label>
+        <input type="text" id="exerciseFilter" placeholder="Search exercise..." style="max-width: 300px; flex: 1; min-width: 200px;">
+      </div>
+
+      <div id="tipsContainer" style="display: grid; gap: 2rem;"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Jack's Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
+  </footer>
+
+  <script>
+    let allTips = {};
+
+    async function loadTips() {
+      try {
+        const response = await fetch('/data/exercise-tips.json');
+        const data = await response.json();
+        allTips = data.tips;
+        renderTips(Object.keys(allTips));
+      } catch (error) {
+        console.error('Error loading tips:', error);
+        document.getElementById('tipsContainer').innerHTML = '<p style="color: var(--danger);">Could not load exercise tips</p>';
+      }
+    }
+
+    function renderTips(exercises) {
+      const container = document.getElementById('tipsContainer');
+
+      if (exercises.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No exercises match your search</p>';
+        return;
+      }
+
+      const html = exercises.map(exercise => `
+        <div class="card">
+          <h2>${exercise}</h2>
+          <div style="display: grid; gap: 0.5rem;">
+            ${allTips[exercise].tips.map((tip, i) => `
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span style="min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: white; border-radius: 50%; font-size: 0.8rem; font-weight: bold;">${i + 1}</span>
+                <span>${tip}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = html;
+    }
+
+    document.getElementById('exerciseFilter').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = Object.keys(allTips).filter(ex =>
+        ex.toLowerCase().includes(query)
+      );
+      renderTips(filtered);
+    });
+
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadTips);
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{
+  "tips": {
+    "Bench press (Smith machine)": {
+      "tips": [
+        "Feet firmly on floor, shoulder-width apart",
+        "Back flat against bench, shoulders retracted",
+        "Grip slightly wider than shoulder width",
+        "Lower bar to mid-chest, elbows at 45° angle",
+        "Press explosively, control on descent",
+        "Full range of motion, no bouncing"
+      ]
+    },
+    "Deadlift": {
+      "tips": [
+        "Feet hip-width apart, bar over mid-foot",
+        "Neutral spine, chest up, shoulders over bar",
+        "Drive through heels, keep bar close to body",
+        "Hips and shoulders rise together",
+        "Lock out at top with full hip extension",
+        "Control descent, don't drop the weight"
+      ]
+    },
+    "Squat": {
+      "tips": [
+        "Feet shoulder-width apart, toes slightly out",
+        "Chest up, neutral spine throughout",
+        "Knees track over toes, don't cave in",
+        "Descend until hips below parallel",
+        "Keep weight in heels, core tight",
+        "Drive up through heels, lock out knees"
+      ]
+    },
+    "Leg press horizontal": {
+      "tips": [
+        "Feet shoulder-width apart on platform",
+        "Back and head against pad throughout",
+        "Lower until knees are at 90°",
+        "Don't lock knees at top",
+        "Control the descent, no bouncing",
+        "Maintain neutral spine, no butt tucking"
+      ]
+    },
+    "Leg press (45 degree)": {
+      "tips": [
+        "Feet shoulder-width apart on platform",
+        "Keep knees aligned with toes",
+        "Lower until knees reach 90°",
+        "Drive through full foot, not just toes",
+        "Don't lock knees at lockout",
+        "Controlled negative, avoid jerking"
+      ]
+    },
+    "Hip abduction out to in": {
+      "tips": [
+        "Keep torso upright, slight forward lean ok",
+        "Move leg in controlled arc",
+        "Feel the contraction in outer hip/glute",
+        "Don't lean away from the movement",
+        "Squeeze at the top of movement",
+        "Control the return, don't swing weight"
+      ]
+    },
+    "Hip adduction in to out": {
+      "tips": [
+        "Sit upright on machine",
+        "Pull legs together in smooth motion",
+        "Feel inner thigh contraction",
+        "Control the opening motion",
+        "Full range of motion without locking",
+        "Slight lean forward acceptable"
+      ]
+    },
+    "Lat pulldown": {
+      "tips": [
+        "Grip slightly wider than shoulder width",
+        "Sit upright, brace core",
+        "Pull elbows down and back",
+        "Drive elbows to hips, chest up",
+        "Feel contraction in lats at bottom",
+        "Control the return, don't let weight pull you up"
+      ]
+    },
+    "Seated row": {
+      "tips": [
+        "Sit upright, slight knee bend, feet flat",
+        "Grip at shoulder height or slightly above",
+        "Pull elbows back, drive chest out",
+        "Shoulders back, no rounding",
+        "Feel squeeze in back and shoulders",
+        "Control return, maintain posture"
+      ]
+    },
+    "Divergent seated row": {
+      "tips": [
+        "Grip handles with neutral hand position",
+        "Sit upright against pad",
+        "Pull handles toward torso",
+        "Keep elbows high, retract shoulders",
+        "Full contraction at bottom",
+        "Controlled return to start"
+      ]
+    },
+    "Chest press": {
+      "tips": [
+        "Back against pad, feet flat on floor",
+        "Grip at shoulder height",
+        "Press handles forward and slightly together",
+        "Full extension without locking elbows",
+        "Control the return, feel stretch in chest",
+        "Smooth, controlled motion throughout"
+      ]
+    },
+    "Cable machine exercises": {
+      "tips": [
+        "Maintain stable stance, core engaged",
+        "Keep tension throughout the movement",
+        "Full range of motion on each rep",
+        "Controlled speed, avoid momentum",
+        "Squeeze the target muscle at peak contraction",
+        "Smooth return to starting position"
+      ]
+    },
+    "Dumbbell exercises": {
+      "tips": [
+        "Full range of motion, no partial reps",
+        "Control the weight, don't let it control you",
+        "Equal weight and reps each side",
+        "Stable stance, core engaged",
+        "No excessive bouncing or jerking",
+        "Feel the muscle working, not just moving weight"
+      ]
+    },
+    "Machine exercises (general)": {
+      "tips": [
+        "Adjust seat and handles for proper form",
+        "Sit/stand with neutral spine",
+        "Smooth, controlled movements",
+        "Full range of motion each rep",
+        "No momentum or bouncing",
+        "Feel the target muscle working"
+      ]
+    }
+  }
+}

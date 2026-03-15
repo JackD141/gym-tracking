@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gym Tracker — Log Workout</title>
+  <title>Jack's Gym Tracker — Log Workout</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -11,10 +11,11 @@
     <div class="container">
       <nav>
         <div style="flex: 1;">
-          <h1 style="margin: 0; font-size: 1.5rem;">💪 Gym Tracker</h1>
+          <h1 style="margin: 0; font-size: 1.5rem;">💪 Jack's Gym Tracker</h1>
         </div>
         <a href="/">Dashboard</a>
         <a href="/log.html" class="active">Log Workout</a>
+        <a href="/tips.html">Form Tips</a>
         <a href="/history.html">History</a>
       </nav>
     </div>
@@ -68,13 +69,14 @@
   </main>
 
   <footer>
-    <p>Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
+    <p>Jack's Gym Tracker • Hosted on Vercel • Data synced with Google Sheets</p>
   </footer>
 
   <script src="/data.js"></script>
   <script>
     let exerciseCount = 0;
     let exercises = [];
+    let exerciseTips = {};
 
     async function initPage() {
       // Set today's date as default
@@ -87,6 +89,15 @@
       // Load data for autocomplete
       await initializeData();
       exercises = getAllExercises();
+
+      // Load exercise form tips
+      try {
+        const tipsResponse = await fetch('/data/exercise-tips.json');
+        const tipsData = await tipsResponse.json();
+        exerciseTips = tipsData.tips;
+      } catch (error) {
+        console.error('Could not load exercise tips:', error);
+      }
 
       // Add first exercise form
       addExerciseForm();
@@ -229,7 +240,13 @@
         if (matches.length > 0 && value.length > 2) {
           input.value = matches[0].name;
           musclesInput.value = matches[0].muscles;
-          notesInput.value = matches[0].formNotes;
+          // Use exercise tips if available, otherwise use historical notes
+          const tips = exerciseTips[matches[0].name];
+          if (tips) {
+            notesInput.value = tips.tips.join('\n');
+          } else {
+            notesInput.value = matches[0].formNotes;
+          }
           input.dispatchEvent(new Event('change', { bubbles: true }));
         }
       });
@@ -238,7 +255,13 @@
         const match = exercises.find(ex => ex.name === input.value);
         if (match) {
           musclesInput.value = match.muscles;
-          notesInput.value = match.formNotes;
+          // Use exercise tips if available, otherwise use historical notes
+          const tips = exerciseTips[match.name];
+          if (tips) {
+            notesInput.value = tips.tips.join('\n');
+          } else {
+            notesInput.value = match.formNotes;
+          }
         }
       });
     }
