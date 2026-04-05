@@ -14,7 +14,7 @@
           <h1 style="margin: 0; font-size: 1.5rem;">💪 Jack's Gym Tracker</h1>
         </div>
         <a href="/">Dashboard</a>
-        <a href="/log.html">Log Workout</a>
+        <a href="/log.html" style="opacity: 0.4; pointer-events: none;">Log Workout</a>
         <a href="/tips.html" class="active">Form Tips</a>
         <a href="/history.html">History</a>
       </nav>
@@ -26,7 +26,7 @@
       <h1>Exercise Form Tips</h1>
       <p>Proper form prevents injury and maximizes results. Use these checklists when logging workouts.</p>
 
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; align-items: center;">
         <label for="exerciseFilter" style="margin-bottom: 0;">Filter exercises:</label>
         <input type="text" id="exerciseFilter" placeholder="Search exercise..." style="max-width: 300px; flex: 1; min-width: 200px;">
       </div>
@@ -41,13 +41,28 @@
 
   <script>
     let allTips = {};
+    let sortedExercises = [];
 
     async function loadTips() {
       try {
-        const response = await fetch('/data/exercise-tips.json');
-        const data = await response.json();
-        allTips = data.tips;
-        renderTips(Object.keys(allTips));
+        const [tipsRes, seedRes] = await Promise.all([
+          fetch('/data/exercise-tips.json'),
+          fetch('/data/seed.json')
+        ]);
+        const tipsData = await tipsRes.json();
+        const seedData = await seedRes.json();
+        allTips = tipsData.tips;
+
+        // Count frequency of each exercise in workout data
+        const freq = {};
+        seedData.forEach(row => {
+          const ex = row.Exercise || row.exercise || '';
+          freq[ex] = (freq[ex] || 0) + 1;
+        });
+
+        // Sort tip exercises by how often they appear in the data
+        sortedExercises = Object.keys(allTips).sort((a, b) => (freq[b] || 0) - (freq[a] || 0));
+        renderTips(sortedExercises);
       } catch (error) {
         console.error('Error loading tips:', error);
         document.getElementById('tipsContainer').innerHTML = '<p style="color: var(--danger);">Could not load exercise tips</p>';
@@ -81,7 +96,7 @@
 
     document.getElementById('exerciseFilter').addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
-      const filtered = Object.keys(allTips).filter(ex =>
+      const filtered = sortedExercises.filter(ex =>
         ex.toLowerCase().includes(query)
       );
       renderTips(filtered);

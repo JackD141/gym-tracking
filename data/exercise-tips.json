@@ -1,14 +1,153 @@
 {
   "tips": {
+    "Shoulder press": {
+      "tips": [
+        "Adjust seat so handles are at shoulder height",
+        "Press directly overhead, slight forward angle is fine",
+        "Don't fully lock elbows at top — keep a slight bend",
+        "Lower to shoulder height for full range of motion",
+        "Keep core tight and lower back against the pad",
+        "Control the descent, don't let the weight drop"
+      ]
+    },
+    "Leg press horizontal": {
+      "tips": [
+        "Feet shoulder-width apart on platform",
+        "Back and head firmly against pad throughout",
+        "Lower until knees reach roughly 90°",
+        "Don't lock knees at full extension",
+        "Control the descent, no bouncing at the bottom",
+        "Keep neutral spine — no butt tucking"
+      ]
+    },
+    "Divergent seated row": {
+      "tips": [
+        "Sit upright with chest against the pad",
+        "Grip handles with neutral (palms facing) position",
+        "Pull handles toward torso, drive elbows back",
+        "Squeeze shoulder blades together at the end",
+        "Full contraction, hold briefly",
+        "Controlled return — don't let weight snap forward"
+      ]
+    },
     "Bench press (Smith machine)": {
       "tips": [
-        "Neutral grip, bar should be even on both sides",
+        "Grip slightly wider than shoulder width, bar even both sides",
         "Feet firmly on floor, shoulder-width apart",
-        "Back flat against bench, shoulders retracted",
-        "Grip slightly wider than shoulder width",
-        "Lower bar to mid-chest, elbows at 45° angle",
-        "Press explosively, control on descent",
-        "Full range of motion, no bouncing or bouncing"
+        "Back flat against bench, shoulders retracted and depressed",
+        "Lower bar to mid-chest, elbows at roughly 45° angle",
+        "Press explosively, control the descent",
+        "Full range of motion — no bouncing off the chest"
+      ]
+    },
+    "Lat pull down reverse": {
+      "tips": [
+        "Supinated grip (palms facing you), shoulder-width apart",
+        "Sit upright with slight backward lean",
+        "Pull bar to upper chest, drive elbows straight down",
+        "Squeeze lats and biceps at the bottom",
+        "Control the return — full stretch at the top",
+        "Don't use momentum or swing"
+      ]
+    },
+    "Leg extensions": {
+      "tips": [
+        "Adjust pad so it sits just above the ankle",
+        "Sit upright with back against the pad",
+        "Extend legs fully and squeeze quads hard at the top",
+        "Don't snap or hyperextend the knee",
+        "Slow controlled descent — 2-3 seconds down",
+        "Avoid swinging or using momentum"
+      ]
+    },
+    "Triceps extension": {
+      "tips": [
+        "Keep upper arms stationary — only forearms move",
+        "Elbows tucked to sides throughout",
+        "Extend fully and squeeze triceps at the bottom",
+        "Control the return, don't let elbows flare out",
+        "Slight forward lean is fine for cable pushdowns",
+        "Full range of motion each rep"
+      ]
+    },
+    "Lat pull down normal": {
+      "tips": [
+        "Overhand grip, slightly wider than shoulder-width",
+        "Lean back slightly, chest up",
+        "Pull bar to upper chest, drive elbows down and back",
+        "Feel lats contracting at the bottom",
+        "Controlled return — full stretch at the top",
+        "No momentum or swinging"
+      ]
+    },
+    "Chest flye machine": {
+      "tips": [
+        "Adjust handles so arms are at chest height",
+        "Slight fixed bend in elbows — don't change this angle",
+        "Bring handles together in a wide arc",
+        "Squeeze chest hard at peak contraction",
+        "Control the return — feel the stretch across the chest",
+        "Don't use arm strength — the movement comes from the chest"
+      ]
+    },
+    "Calf extension": {
+      "tips": [
+        "Full range of motion — deep stretch at the bottom",
+        "Drive through the ball of your foot, not just the toes",
+        "Pause and squeeze hard at the top",
+        "Slow controlled descent — don't bounce",
+        "Keep a slight bend in the knees",
+        "Both sides equal — don't favour one leg"
+      ]
+    },
+    "Bicep cable curl": {
+      "tips": [
+        "Elbows pinned to your sides throughout",
+        "Curl to chin height — full range of motion",
+        "Squeeze the bicep hard at the top",
+        "Slow controlled descent — 2-3 seconds down",
+        "Don't lean back or use momentum",
+        "Full extension at the bottom each rep"
+      ]
+    },
+    "Lateral raise": {
+      "tips": [
+        "Slight fixed bend in elbows, maintain throughout",
+        "Raise to shoulder height — no higher",
+        "Lead with your elbows, not your wrists",
+        "Control the descent — don't let arms drop",
+        "Don't shrug your shoulders — keep them down",
+        "Slight forward lean acceptable"
+      ]
+    },
+    "Dips legs raised": {
+      "tips": [
+        "Grip bars with arms shoulder-width apart",
+        "Keep legs raised and core tight throughout",
+        "Lower until upper arms are parallel to ground",
+        "Press back up without locking elbows fully",
+        "Slight forward lean targets chest; upright targets triceps",
+        "Controlled descent — don't drop"
+      ]
+    },
+    "Hip abduction out to in": {
+      "tips": [
+        "Sit upright with slight forward lean",
+        "Push legs outward in a controlled arc",
+        "Feel the contraction in the outer hip and glute",
+        "Don't lean away from the movement",
+        "Squeeze at the end of the movement",
+        "Control the return — don't let weight slam"
+      ]
+    },
+    "Chest cable flyes": {
+      "tips": [
+        "Set cables at chest height, stand in the middle",
+        "Slight bend in elbows — maintain throughout",
+        "Bring hands together in a wide arc in front of chest",
+        "Squeeze chest at the centre",
+        "Control the return — feel the stretch",
+        "Keep core tight and stance stable"
       ]
     },
     "Deadlift": {
@@ -17,128 +156,48 @@
         "Neutral spine, chest up, shoulders over bar",
         "Drive through heels, keep bar close to body",
         "Hips and shoulders rise together",
-        "Lock out at top with full hip extension",
-        "Control descent, don't drop the weight"
+        "Lock out at the top with full hip extension",
+        "Control the descent — don't drop the weight"
       ]
     },
-    "Squat": {
+    "Converging chest press": {
       "tips": [
-        "Feet shoulder-width apart, toes slightly out",
-        "Chest up, neutral spine throughout",
-        "Knees track over toes, don't cave in",
-        "Descend until hips below parallel",
-        "Keep weight in heels, core tight",
-        "Drive up through heels, lock out knees"
+        "Adjust seat so handles are at chest height",
+        "Press forward and slightly inward in a converging arc",
+        "Don't fully lock elbows at extension",
+        "Control the return — feel the chest stretch",
+        "Keep back against the pad throughout",
+        "Smooth motion — no jerking"
       ]
     },
-    "Leg press horizontal": {
+    "Seated leg curls": {
       "tips": [
-        "Feet shoulder-width apart on platform",
-        "Back and head against pad throughout",
-        "Lower until knees are at 90°",
-        "Don't lock knees at top",
-        "Control the descent, no bouncing",
-        "Maintain neutral spine, no butt tucking"
+        "Adjust pad so it rests just above the ankle",
+        "Sit upright with back against the pad",
+        "Curl legs fully — feel the hamstring contract",
+        "Hold briefly at full contraction",
+        "Slow controlled return — 2-3 seconds",
+        "Don't use momentum to swing the weight"
       ]
     },
-    "Leg press (45 degree)": {
+    "Barbell bicep curl": {
       "tips": [
-        "Feet shoulder-width apart on platform",
-        "Keep knees aligned with toes",
-        "Lower until knees reach 90°",
-        "Drive through full foot, not just toes",
-        "Don't lock knees at lockout",
-        "Controlled negative, avoid jerking"
+        "Shoulder-width grip, elbows pinned to sides",
+        "Stand upright — no leaning back",
+        "Curl bar to chin height, full range of motion",
+        "Squeeze hard at the top",
+        "Slow controlled descent — 2-3 seconds",
+        "Don't swing — keep the movement strict"
       ]
     },
-    "Hip abduction out to in": {
+    "Chin ups normal": {
       "tips": [
-        "Keep torso upright, slight forward lean ok",
-        "Move leg in controlled arc",
-        "Feel the contraction in outer hip/glute",
-        "Don't lean away from the movement",
-        "Squeeze at the top of movement",
-        "Control the return, don't swing weight"
-      ]
-    },
-    "Hip adduction in to out": {
-      "tips": [
-        "Sit upright on machine",
-        "Pull legs together in smooth motion",
-        "Feel inner thigh contraction",
-        "Control the opening motion",
-        "Full range of motion without locking",
-        "Slight lean forward acceptable"
-      ]
-    },
-    "Lat pulldown": {
-      "tips": [
-        "Grip slightly wider than shoulder width",
-        "Sit upright, brace core",
-        "Pull elbows down and back",
-        "Drive elbows to hips, chest up",
-        "Feel contraction in lats at bottom",
-        "Control the return, don't let weight pull you up"
-      ]
-    },
-    "Seated row": {
-      "tips": [
-        "Sit upright, slight knee bend, feet flat",
-        "Grip at shoulder height or slightly above",
-        "Pull elbows back, drive chest out",
-        "Shoulders back, no rounding",
-        "Feel squeeze in back and shoulders",
-        "Control return, maintain posture"
-      ]
-    },
-    "Divergent seated row": {
-      "tips": [
-        "Grip handles with neutral hand position",
-        "Sit upright against pad",
-        "Pull handles toward torso",
-        "Keep elbows high, retract shoulders",
-        "Full contraction at bottom",
-        "Controlled return to start"
-      ]
-    },
-    "Chest press": {
-      "tips": [
-        "Back against pad, feet flat on floor",
-        "Grip at shoulder height",
-        "Press handles forward and slightly together",
-        "Full extension without locking elbows",
-        "Control the return, feel stretch in chest",
-        "Smooth, controlled motion throughout"
-      ]
-    },
-    "Cable machine exercises": {
-      "tips": [
-        "Maintain stable stance, core engaged",
-        "Keep tension throughout the movement",
-        "Full range of motion on each rep",
-        "Controlled speed, avoid momentum",
-        "Squeeze the target muscle at peak contraction",
-        "Smooth return to starting position"
-      ]
-    },
-    "Dumbbell exercises": {
-      "tips": [
-        "Full range of motion, no partial reps",
-        "Control the weight, don't let it control you",
-        "Equal weight and reps each side",
-        "Stable stance, core engaged",
-        "No excessive bouncing or jerking",
-        "Feel the muscle working, not just moving weight"
-      ]
-    },
-    "Machine exercises (general)": {
-      "tips": [
-        "Adjust seat and handles for proper form",
-        "Sit/stand with neutral spine",
-        "Smooth, controlled movements",
-        "Full range of motion each rep",
-        "No momentum or bouncing",
-        "Feel the target muscle working"
+        "Supinated grip (palms facing you), shoulder-width",
+        "Dead hang at the bottom — full extension",
+        "Pull chin above the bar",
+        "Drive elbows down to your sides",
+        "Controlled descent — don't drop",
+        "Keep core tight — don't swing legs"
       ]
     }
   }
