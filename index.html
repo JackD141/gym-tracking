@@ -214,12 +214,20 @@
       const today = new Date();
       const data = [];
 
-      // Get last 16 weeks
+      // Find the start of the current calendar week (Monday)
+      const currentDay = today.getDay();
+      const diffToMonday = (currentDay === 0) ? -6 : 1 - currentDay;
+      const currentWeekStart = new Date(today);
+      currentWeekStart.setDate(today.getDate() + diffToMonday);
+      currentWeekStart.setHours(0, 0, 0, 0);
+
+      // Get last 16 Mon-Sun weeks
       for (let i = 15; i >= 0; i--) {
-        const weekEnd = new Date(today);
-        weekEnd.setDate(weekEnd.getDate() - i * 7);
-        const weekStart = new Date(weekEnd);
-        weekStart.setDate(weekStart.getDate() - 6);
+        const weekStart = new Date(currentWeekStart);
+        weekStart.setDate(currentWeekStart.getDate() - i * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
 
         const weekSessions = sessions.filter(session => {
           const sessionDate = parseDate(session.date);
@@ -237,7 +245,7 @@
           });
         });
 
-        const weekLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const weekLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         data.push({
           week: weekLabel,
           count: weekSessions.length,
