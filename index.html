@@ -85,7 +85,8 @@
         <h2>Volume Trend</h2>
         <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
           <label for="volumeWeeks" style="margin-bottom: 0;">Weeks to show:</label>
-          <select id="volumeWeeks" style="max-width: 120px;">
+          <select id="volumeWeeks" style="max-width: 160px;">
+            <option value="all" selected>Since first workout</option>
             <option value="4">4 weeks</option>
             <option value="8">8 weeks</option>
             <option value="12">12 weeks</option>
@@ -440,10 +441,18 @@
     }
 
     function showVolumeChart() {
-      const weeks = parseInt(document.getElementById('volumeWeeks').value);
+      const value = document.getElementById('volumeWeeks').value;
       const sessions = getSessions();
       const today = new Date();
       const weeklyData = [];
+
+      let weeks;
+      if (value === 'all' && sessions.length > 0) {
+        const firstDate = parseDate(sessions[sessions.length - 1].date);
+        weeks = Math.ceil((today - firstDate) / (7 * 24 * 60 * 60 * 1000)) + 1;
+      } else {
+        weeks = parseInt(value);
+      }
 
       for (let i = weeks - 1; i >= 0; i--) {
         const weekEnd = new Date(today);
