@@ -83,15 +83,26 @@
       <!-- Volume Trend -->
       <div class="card">
         <h2>Volume Trend</h2>
-        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
-          <label for="volumeWeeks" style="margin-bottom: 0;">Weeks to show:</label>
-          <select id="volumeWeeks" style="max-width: 200px;">
-            <option value="all" selected>Since first workout</option>
-            <option value="4">4 weeks</option>
-            <option value="8">8 weeks</option>
-            <option value="12">12 weeks</option>
-            <option value="26">6 months</option>
-          </select>
+        <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label for="volumeWeeks" style="margin-bottom: 0;">Weeks to show:</label>
+            <select id="volumeWeeks" style="max-width: 200px;">
+              <option value="all" selected>Since first workout</option>
+              <option value="4">4 weeks</option>
+              <option value="8">8 weeks</option>
+              <option value="12">12 weeks</option>
+              <option value="26">6 months</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <label for="trendWindow" style="margin-bottom: 0;">Fit trend over:</label>
+            <select id="trendWindow" style="max-width: 200px;">
+              <option value="all" selected>All shown weeks</option>
+              <option value="4">Last 4 weeks</option>
+              <option value="8">Last 8 weeks</option>
+              <option value="12">Last 12 weeks</option>
+            </select>
+          </div>
         </div>
         <div class="chart-container">
           <canvas id="volumeChart"></canvas>
@@ -196,6 +207,9 @@
 
       // Volume weeks selector
       document.getElementById('volumeWeeks').addEventListener('change', () => {
+        showVolumeChart();
+      });
+      document.getElementById('trendWindow').addEventListener('change', () => {
         showVolumeChart();
       });
 
@@ -472,8 +486,11 @@
         weeklyData.push({ week: weekLabel, volume });
       }
 
-      // Calculate best-fit line
-      const trendline = calculateTrendline(weeklyData.map(d => d.volume));
+      // Calculate best-fit line over the selected window
+      const trendWindowVal = document.getElementById('trendWindow').value;
+      const volumes = weeklyData.map(d => d.volume);
+      const windowSize = trendWindowVal === 'all' ? volumes.length : Math.min(parseInt(trendWindowVal), volumes.length);
+      const trendline = calculateTrendline(volumes, windowSize);
 
       const ctx = document.getElementById('volumeChart').getContext('2d');
       if (volumeChart) volumeChart.destroy();
@@ -521,18 +538,25 @@
       });
     }
 
-    function calculateTrendline(data) {
+    function calculateTrendline(data, windowSize) {
       if (data.length < 2) return data;
 
       const n = data.length;
-      const sumX = n * (n - 1) / 2;
-      const sumY = data.reduce((a, b) => a + b, 0);
-      const sumXY = data.reduce((sum, y, i) => sum + i * y, 0);
-      const sumX2 = n * (n - 1) * (2 * n - 1) / 6;
+      const w = windowSize || n;
 
-      const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const b = (sumY - m * sumX) / n;
+      // Fit the line on only the last `w` data points
+      const slice = data.slice(n - w);
+      const startIdx = n - w;
+      const sn = slice.length;
+      const sumX = slice.reduce((sum, _, i) => sum + (startIdx + i), 0);
+      const sumY = slice.reduce((a, b) => a + b, 0);
+      const sumXY = slice.reduce((sum, y, i) => sum + (startIdx + i) * y, 0);
+      const sumX2 = slice.reduce((sum, _, i) => sum + (startIdx + i) ** 2, 0);
 
+      const m = (sn * sumXY - sumX * sumY) / (sn * sumX2 - sumX * sumX);
+      const b = (sumY - m * sumX) / sn;
+
+      // Project the fitted line across all data points
       return data.map((_, i) => m * i + b);
     }
 
