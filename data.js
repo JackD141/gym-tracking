@@ -263,7 +263,9 @@ function calculateFrequency() {
   sessions.forEach(session => {
     const sessionDate = parseDate(session.date);
     const weekStart = new Date(sessionDate);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const day = weekStart.getDay();
+    const diffToMonday = (day === 0) ? -6 : 1 - day;
+    weekStart.setDate(weekStart.getDate() + diffToMonday);
     const weekLabel = formatDate(`${weekStart.getDate()}/${weekStart.getMonth() + 1}/${weekStart.getFullYear()}`);
 
     if (!weekMap[weekLabel]) {
