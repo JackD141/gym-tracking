@@ -260,10 +260,15 @@
           });
         });
 
+        const gymCount = weekSessions.filter(s => (s.location || 'gym') === 'gym').length;
+        const homeCount = weekSessions.filter(s => s.location === 'home').length;
+
         const weekLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         data.push({
           week: weekLabel,
           count: weekSessions.length,
+          gymCount,
+          homeCount,
           exerciseSets: exerciseSets
         });
       }
@@ -278,14 +283,24 @@
         type: 'bar',
         data: {
           labels: frequencyData.map(d => d.week),
-          datasets: [{
-            label: 'Sessions per week',
-            data: frequencyData.map(d => d.count),
-            backgroundColor: THEME.accent,
-            borderColor: THEME.accentDark,
-            borderWidth: 1,
-            borderRadius: 6
-          }]
+          datasets: [
+            {
+              label: '🏋️ Gym',
+              data: frequencyData.map(d => d.gymCount),
+              backgroundColor: THEME.accent,
+              borderColor: THEME.accentDark,
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: '🏠 Home',
+              data: frequencyData.map(d => d.homeCount),
+              backgroundColor: '#4caf50',
+              borderColor: '#388e3c',
+              borderWidth: 1,
+              borderRadius: 4
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -299,27 +314,22 @@
               borderColor: THEME.borderColor,
               borderWidth: 1,
               padding: 12,
-              displayColors: false,
+              displayColors: true,
               callbacks: {
-                title: (context) => {
-                  return `Week of ${frequencyData[context[0].dataIndex].week}`;
-                },
-                label: (context) => {
-                  return `Sessions: ${context.parsed.y}`;
-                },
-                afterLabel: (context) => {
-                  const weekData = frequencyData[context.dataIndex];
+                title: (context) => `Week of ${frequencyData[context[0].dataIndex].week}`,
+                afterBody: (context) => {
+                  const weekData = frequencyData[context[0].dataIndex];
                   const exercises = Object.entries(weekData.exerciseSets)
                     .map(([name, sets]) => ({ name, sets }))
                     .sort((a, b) => b.sets - a.sets);
-                  return exercises.map(ex => `${ex.name}: ${ex.sets} sets`).join('\n');
+                  return ['', ...exercises.map(ex => `${ex.name}: ${ex.sets} sets`)];
                 }
               }
             }
           },
           scales: {
-            x: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
-            y: { grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary, stepSize: 1 }, beginAtZero: true }
+            x: { stacked: true, grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
+            y: { stacked: true, grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary, stepSize: 1 }, beginAtZero: true }
           }
         }
       });
