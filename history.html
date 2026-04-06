@@ -44,16 +44,6 @@
   <script src="/config.js"></script>
   <script src="/data.js"></script>
   <script>
-    let locations = {};
-
-    function toggleLocation(date, event) {
-      event.stopPropagation();
-      // Toggle is visual-only; to persist changes edit data/locations.json in the repo
-      const current = locations[date] || 'gym';
-      locations[date] = current === 'gym' ? 'home' : 'gym';
-      const badge = document.getElementById(`loc-${CSS.escape(date)}`);
-      if (badge) applyBadge(badge, locations[date]);
-    }
 
     function applyBadge(el, location) {
       if (location === 'home') {
@@ -72,11 +62,6 @@
     async function loadHistory() {
       await initializeData();
 
-      try {
-        const res = await fetch('/data/locations.json');
-        locations = await res.json();
-      } catch { locations = {}; }
-
       const sessions = getSessions();
       const container = document.getElementById('sessionsContainer');
 
@@ -87,7 +72,7 @@
 
       const html = sessions.map((session, index) => {
         const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
-        const location = locations[session.date] || 'gym';
+        const location = session.location || 'gym';
 
         const exercisesHtml = session.exercises.map(ex => `
           <div class="exercise-in-session">
@@ -119,8 +104,8 @@
                     <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
                   </div>
                 </div>
-                <span id="loc-${session.date}" onclick="toggleLocation('${session.date}', event)"
-                  style="cursor: pointer; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid; white-space: nowrap; user-select: none;"></span>
+                <span id="loc-${session.date}"
+                  style="font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid; white-space: nowrap;"></span>
               </div>
               <div style="color: var(--text-secondary); font-size: 1.5rem;">▼</div>
             </div>
