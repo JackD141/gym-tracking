@@ -44,11 +44,48 @@
   <script src="/config.js"></script>
   <script src="/data.js"></script>
   <script>
+    const LOCATION_KEY = 'session-locations';
+
+    function getLocations() {
+      try { return JSON.parse(localStorage.getItem(LOCATION_KEY)) || {}; } catch { return {}; }
+    }
+
+    function setLocation(date, location) {
+      const locations = getLocations();
+      locations[date] = location;
+      localStorage.setItem(LOCATION_KEY, JSON.stringify(locations));
+    }
+
+    function toggleLocation(date, event) {
+      event.stopPropagation();
+      const locations = getLocations();
+      const current = locations[date] || 'gym';
+      const next = current === 'gym' ? 'home' : 'gym';
+      setLocation(date, next);
+      const badge = document.getElementById(`loc-${CSS.escape(date)}`);
+      if (badge) applyBadge(badge, next);
+    }
+
+    function applyBadge(el, location) {
+      if (location === 'home') {
+        el.textContent = '🏠 Home';
+        el.style.background = '#e8f5e9';
+        el.style.color = '#2e7d32';
+        el.style.borderColor = '#a5d6a7';
+      } else {
+        el.textContent = '🏋️ Gym';
+        el.style.background = '#e3f0ff';
+        el.style.color = '#0066cc';
+        el.style.borderColor = '#90bef0';
+      }
+    }
+
     async function loadHistory() {
       await initializeData();
 
       const sessions = getSessions();
       const container = document.getElementById('sessionsContainer');
+      const locations = getLocations();
 
       if (sessions.length === 0) {
         container.innerHTML = '<div class="card"><p style="color: var(--text-secondary); text-align: center;">No sessions logged yet</p></div>';
@@ -57,6 +94,7 @@
 
       const html = sessions.map((session, index) => {
         const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
+        const location = locations[session.date] || 'gym';
 
         const exercisesHtml = session.exercises.map(ex => `
           <div class="exercise-in-session">
@@ -80,12 +118,16 @@
         return `
           <div class="session" id="session-${index}">
             <div class="session-header" onclick="toggleSession(${index})">
-              <div>
-                <div class="session-date">${formatDate(session.date)}</div>
-                <div class="session-meta">
-                  <span>${session.exercises.length} exercises</span>
-                  <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <div>
+                  <div class="session-date">${formatDate(session.date)}</div>
+                  <div class="session-meta">
+                    <span>${session.exercises.length} exercises</span>
+                    <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
+                  </div>
                 </div>
+                <span id="loc-${session.date}" onclick="toggleLocation('${session.date}', event)"
+                  style="cursor: pointer; font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid; white-space: nowrap; user-select: none;"></span>
               </div>
               <div style="color: var(--text-secondary); font-size: 1.5rem;">▼</div>
             </div>
@@ -97,6 +139,13 @@
       }).join('');
 
       container.innerHTML = html;
+
+      // Apply badge styles after render
+      sessions.forEach(session => {
+        const loc = locations[session.date] || 'gym';
+        const badge = document.getElementById(`loc-${session.date}`);
+        if (badge) applyBadge(badge, loc);
+      });
     }
 
     function toggleSession(index) {
