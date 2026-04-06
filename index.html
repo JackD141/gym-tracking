@@ -460,19 +460,27 @@
       const today = new Date();
       const weeklyData = [];
 
+      // Anchor to the current Monday
+      const currentDay = today.getDay();
+      const diffToMonday = (currentDay === 0) ? -6 : 1 - currentDay;
+      const currentWeekStart = new Date(today);
+      currentWeekStart.setDate(today.getDate() + diffToMonday);
+      currentWeekStart.setHours(0, 0, 0, 0);
+
       let weeks;
       if (value === 'all' && sessions.length > 0) {
         const firstDate = parseDate(sessions[sessions.length - 1].date);
-        weeks = Math.ceil((today - firstDate) / (7 * 24 * 60 * 60 * 1000)) + 1;
+        weeks = Math.ceil((currentWeekStart - firstDate) / (7 * 24 * 60 * 60 * 1000)) + 1;
       } else {
         weeks = parseInt(value);
       }
 
       for (let i = weeks - 1; i >= 0; i--) {
-        const weekEnd = new Date(today);
-        weekEnd.setDate(weekEnd.getDate() - i * 7);
-        const weekStart = new Date(weekEnd);
-        weekStart.setDate(weekStart.getDate() - 6);
+        const weekStart = new Date(currentWeekStart);
+        weekStart.setDate(currentWeekStart.getDate() - i * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
 
         let volume = 0;
         sessions.forEach(session => {
@@ -482,7 +490,7 @@
           }
         });
 
-        const weekLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const weekLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         weeklyData.push({ week: weekLabel, volume });
       }
 
