@@ -120,9 +120,8 @@
 
       // Apply badge styles after render
       sessions.forEach(session => {
-        const loc = locations[session.date] || 'gym';
         const badge = document.getElementById(`loc-${session.date}`);
-        if (badge) applyBadge(badge, loc);
+        if (badge) applyBadge(badge, session.location || 'gym');
       });
     }
 
