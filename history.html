@@ -44,26 +44,15 @@
   <script src="/config.js"></script>
   <script src="/data.js"></script>
   <script>
-    const LOCATION_KEY = 'session-locations';
-
-    function getLocations() {
-      try { return JSON.parse(localStorage.getItem(LOCATION_KEY)) || {}; } catch { return {}; }
-    }
-
-    function setLocation(date, location) {
-      const locations = getLocations();
-      locations[date] = location;
-      localStorage.setItem(LOCATION_KEY, JSON.stringify(locations));
-    }
+    let locations = {};
 
     function toggleLocation(date, event) {
       event.stopPropagation();
-      const locations = getLocations();
+      // Toggle is visual-only; to persist changes edit data/locations.json in the repo
       const current = locations[date] || 'gym';
-      const next = current === 'gym' ? 'home' : 'gym';
-      setLocation(date, next);
+      locations[date] = current === 'gym' ? 'home' : 'gym';
       const badge = document.getElementById(`loc-${CSS.escape(date)}`);
-      if (badge) applyBadge(badge, next);
+      if (badge) applyBadge(badge, locations[date]);
     }
 
     function applyBadge(el, location) {
@@ -83,9 +72,13 @@
     async function loadHistory() {
       await initializeData();
 
+      try {
+        const res = await fetch('/data/locations.json');
+        locations = await res.json();
+      } catch { locations = {}; }
+
       const sessions = getSessions();
       const container = document.getElementById('sessionsContainer');
-      const locations = getLocations();
 
       if (sessions.length === 0) {
         container.innerHTML = '<div class="card"><p style="color: var(--text-secondary); text-align: center;">No sessions logged yet</p></div>';
