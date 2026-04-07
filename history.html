@@ -44,6 +44,13 @@
   <script src="/config.js"></script>
   <script src="/data.js"></script>
   <script>
+    let exerciseTips = {};
+
+    function getFormTips(exerciseName) {
+      const tipData = exerciseTips[exerciseName];
+      if (!tipData) return [];
+      return tipData.tips.slice(0, 3);
+    }
 
     function applyBadge(el, location) {
       if (location === 'home') {
@@ -61,6 +68,11 @@
 
     async function loadHistory() {
       await initializeData();
+      try {
+        const res = await fetch('/data/exercise-tips.json');
+        const data = await res.json();
+        exerciseTips = data.tips;
+      } catch { exerciseTips = {}; }
 
       const sessions = getSessions();
       const container = document.getElementById('sessionsContainer');
@@ -74,7 +86,17 @@
         const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
         const location = session.location || 'gym';
 
-        const exercisesHtml = session.exercises.map(ex => `
+        const exercisesHtml = session.exercises.map(ex => {
+          const tips = getFormTips(ex.exercise);
+          const setsHtml = ex.sets.map((s, i) =>
+            `<span><strong>${s.weight}</strong> kg × <strong>${s.reps}</strong></span>`
+          ).join('<span style="color: var(--text-secondary); margin: 0 0.4rem;">,</span>');
+          const tipsHtml = tips.length > 0
+            ? `<ul style="margin: 0; padding-left: 1.1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                ${tips.map(t => `<li>${t}</li>`).join('')}
+               </ul>`
+            : '';
+          return `
           <div class="exercise-in-session">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
               <div>
@@ -86,12 +108,13 @@
                 <div style="font-size: 0.85rem; color: var(--text-secondary);">volume</div>
               </div>
             </div>
-            <div style="font-size: 0.9rem; color: var(--text-secondary);">
-              ${ex.sets.map(s => `<span style="display: inline-block; margin-right: 0.75rem;"><strong>${s.weight}</strong> kg × <strong>${s.reps}</strong></span>`).join('')}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+              <div style="font-size: 0.9rem; color: var(--text-secondary);">${setsHtml}</div>
+              ${tipsHtml}
             </div>
-            ${ex.formNotes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; font-style: italic;">"${ex.formNotes}"</div>` : ''}
           </div>
-        `).join('');
+        `;
+        }).join('');
 
         return `
           <div class="session" id="session-${index}">
