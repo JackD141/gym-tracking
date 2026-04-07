@@ -46,7 +46,15 @@
       <!-- Workout Frequency -->
       <div class="card">
         <h2>Workout Frequency</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1rem;">When have you been training?</p>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <p style="color: var(--text-secondary); margin: 0;">When have you been training?</p>
+          <div style="display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button id="freqModeWorkouts" onclick="setFrequencyMode('workouts')"
+              style="padding: 0.35rem 0.9rem; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; background: var(--accent); color: #fff;">Workouts</button>
+            <button id="freqModeSets" onclick="setFrequencyMode('sets')"
+              style="padding: 0.35rem 0.9rem; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; background: transparent; color: var(--text-secondary);">Sets</button>
+          </div>
+        </div>
         <div class="chart-container">
           <canvas id="frequencyChart"></canvas>
         </div>
@@ -260,8 +268,12 @@
           });
         });
 
-        const gymCount = weekSessions.filter(s => (s.location || 'gym') === 'gym').length;
-        const homeCount = weekSessions.filter(s => s.location === 'home').length;
+        const gymSessions = weekSessions.filter(s => (s.location || 'gym') === 'gym');
+        const homeSessions = weekSessions.filter(s => s.location === 'home');
+        const gymCount = gymSessions.length;
+        const homeCount = homeSessions.length;
+        const gymSets = gymSessions.reduce((sum, s) => sum + s.exercises.reduce((a, ex) => a + ex.sets.length, 0), 0);
+        const homeSets = homeSessions.reduce((sum, s) => sum + s.exercises.reduce((a, ex) => a + ex.sets.length, 0), 0);
 
         const weekLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         data.push({
@@ -269,6 +281,8 @@
           count: weekSessions.length,
           gymCount,
           homeCount,
+          gymSets,
+          homeSets,
           exerciseSets: exerciseSets
         });
       }
@@ -276,17 +290,34 @@
       return data;
     }
 
-    function createFrequencyChart(frequencyData) {
+    let frequencyMode = 'workouts';
+    let frequencyData = [];
+
+    function setFrequencyMode(mode) {
+      frequencyMode = mode;
+      document.getElementById('freqModeWorkouts').style.background = mode === 'workouts' ? THEME.accent : 'transparent';
+      document.getElementById('freqModeWorkouts').style.color = mode === 'workouts' ? '#fff' : THEME.textSecondary;
+      document.getElementById('freqModeSets').style.background = mode === 'sets' ? THEME.accent : 'transparent';
+      document.getElementById('freqModeSets').style.color = mode === 'sets' ? '#fff' : THEME.textSecondary;
+      createFrequencyChart(frequencyData);
+    }
+
+    function createFrequencyChart(data) {
+      frequencyData = data;
       const ctx = document.getElementById('frequencyChart').getContext('2d');
+      if (frequencyChart) frequencyChart.destroy();
+
+      const isSets = frequencyMode === 'sets';
+      const yLabel = isSets ? 'Sets' : 'Workouts';
 
       frequencyChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: frequencyData.map(d => d.week),
+          labels: data.map(d => d.week),
           datasets: [
             {
               label: '🏋️ Gym',
-              data: frequencyData.map(d => d.gymCount),
+              data: data.map(d => isSets ? d.gymSets : d.gymCount),
               backgroundColor: THEME.accent,
               borderColor: THEME.accentDark,
               borderWidth: 1,
@@ -294,7 +325,7 @@
             },
             {
               label: '🏠 Home',
-              data: frequencyData.map(d => d.homeCount),
+              data: data.map(d => isSets ? d.homeSets : d.homeCount),
               backgroundColor: '#4caf50',
               borderColor: '#388e3c',
               borderWidth: 1,
@@ -316,9 +347,9 @@
               padding: 12,
               displayColors: true,
               callbacks: {
-                title: (context) => `Week of ${frequencyData[context[0].dataIndex].week}`,
+                title: (context) => `Week of ${data[context[0].dataIndex].week}`,
                 afterBody: (context) => {
-                  const weekData = frequencyData[context[0].dataIndex];
+                  const weekData = data[context[0].dataIndex];
                   const exercises = Object.entries(weekData.exerciseSets)
                     .map(([name, sets]) => ({ name, sets }))
                     .sort((a, b) => b.sets - a.sets);
@@ -329,7 +360,13 @@
           },
           scales: {
             x: { stacked: true, grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary } },
-            y: { stacked: true, grid: { color: THEME.borderColor }, ticks: { color: THEME.textSecondary, stepSize: 1 }, beginAtZero: true }
+            y: {
+              stacked: true,
+              grid: { color: THEME.borderColor },
+              ticks: { color: THEME.textSecondary, stepSize: isSets ? undefined : 1 },
+              beginAtZero: true,
+              title: { display: true, text: yLabel, color: THEME.textSecondary, font: { size: 12 } }
+            }
           }
         }
       });
