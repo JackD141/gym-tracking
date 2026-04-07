@@ -92,7 +92,7 @@
             `<span><strong>${s.weight}</strong> kg × <strong>${s.reps}</strong></span>`
           ).join('<span style="color: var(--text-secondary); margin: 0 0.4rem;">,</span>');
           const tipsHtml = tips.length > 0
-            ? `<ul style="margin: 0; padding-left: 1.1rem; font-size: 0.8rem; color: var(--text-secondary);">
+            ? `<ul style="margin: 0; padding-left: 1.1rem; font-size: 0.85rem; color: var(--text-secondary);">
                 ${tips.map(t => `<li>${t}</li>`).join('')}
                </ul>`
             : '';
@@ -108,7 +108,7 @@
                 <div style="font-size: 0.85rem; color: var(--text-secondary);">volume</div>
               </div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+            <div class="exercise-sets-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
               <div style="font-size: 0.9rem; color: var(--text-secondary);">${setsHtml}</div>
               ${tipsHtml}
             </div>
