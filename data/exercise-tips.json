@@ -199,6 +199,186 @@
         "Controlled descent — don't drop",
         "Keep core tight — don't swing legs"
       ]
+    },
+    "Corkscrew": {
+      "tips": [
+        "Set cable at about hip height, stand side-on to the machine",
+        "Hold the handle with both hands, arms extended in front",
+        "Rotate your torso away from the cable — hips stay square",
+        "Feel the oblique on the far side contracting",
+        "Control the return — don't let the cable pull you back",
+        "Move from the core, not the arms or shoulders"
+      ]
+    },
+    "Dumbell lateral raises": {
+      "tips": [
+        "Slight fixed bend in elbows — maintain throughout",
+        "Raise to shoulder height — no higher",
+        "Lead with your elbows, not your wrists",
+        "Control the descent — don't let arms drop",
+        "Don't shrug your shoulders — keep them down",
+        "Slight forward lean acceptable"
+      ]
+    },
+    "Triceps curl": {
+      "tips": [
+        "Keep upper arms stationary — only forearms move",
+        "Elbows tucked close to your sides throughout",
+        "Full extension at the bottom, squeeze triceps hard",
+        "Control the return — slow and deliberate",
+        "Don't lean back or use momentum",
+        "Full range of motion each rep"
+      ]
+    },
+    "Leg press": {
+      "tips": [
+        "Feet shoulder-width apart on the platform",
+        "Back and head against the pad throughout",
+        "Lower until knees reach roughly 90°",
+        "Don't lock knees at full extension",
+        "Control the descent — no bouncing at the bottom",
+        "Drive through the full foot, not just toes"
+      ]
+    },
+    "RDL": {
+      "tips": [
+        "Hip-width stance, soft bend in knees throughout — don't squat down",
+        "Push hips back as you lower, keep bar or dumbbells close to legs",
+        "Keep chest up and spine neutral — stop before your back rounds",
+        "Feel the hamstring stretch in the bottom position",
+        "Drive hips forward to return to standing — don't pull with your back",
+        "Squeeze glutes at the top"
+      ]
+    },
+    "Chin ups reverse": {
+      "tips": [
+        "Pronated grip (palms facing away), shoulder-width or slightly wider",
+        "Dead hang at the bottom — full arm extension",
+        "Pull chin above the bar, drive elbows down",
+        "Controlled descent — take 2-3 seconds down",
+        "Keep core tight — don't swing or kip",
+        "Shoulders depressed — don't shrug at the top"
+      ]
+    },
+    "Shoulder press dumbell": {
+      "tips": [
+        "Hold dumbbells at shoulder height, palms facing forward",
+        "Press directly overhead — slight inward arc is fine",
+        "Don't fully lock elbows at the top",
+        "Lower to shoulder height for full range of motion",
+        "Keep core tight — don't arch the lower back",
+        "Control the descent, don't let dumbbells drop"
+      ]
+    },
+    "Hack squats": {
+      "tips": [
+        "Feet shoulder-width on the platform, toes slightly out",
+        "Back and shoulders flush against the pad throughout",
+        "Lower until thighs are at least parallel to the platform",
+        "Knees track over toes — don't let them cave in",
+        "Drive through heels, not toes",
+        "Don't lock knees at the top"
+      ]
+    },
+    "Calf extension tiptoe thing": {
+      "tips": [
+        "Full stretch at the bottom — let your heel drop as low as possible",
+        "Rise up as high as you can onto the ball of your foot",
+        "Pause and squeeze hard at the top",
+        "Slow controlled descent — 2-3 seconds down",
+        "Don't bounce at the bottom",
+        "Keep movement smooth — no jerking"
+      ]
+    },
+    "Incline chest press": {
+      "tips": [
+        "Set bench to 30-45° incline — steeper hits more upper chest",
+        "Grip slightly wider than shoulder-width",
+        "Lower bar or dumbbells to your upper chest, elbows at roughly 45-60°",
+        "Press up and very slightly inward",
+        "Don't fully lock elbows at the top",
+        "Control the descent — feel the upper chest stretch"
+      ]
+    },
+    "Smith machine press": {
+      "tips": [
+        "Adjust bar height to shoulder level when seated or standing",
+        "Grip slightly wider than shoulder-width",
+        "Press directly overhead — the Smith guides the bar path",
+        "Don't fully lock elbows at the top",
+        "Lower to chin or shoulder height — full range of motion",
+        "Keep core braced throughout"
+      ]
+    },
+    "Prone leg curl": {
+      "tips": [
+        "Lie face down, pad positioned just above the ankles",
+        "Hips stay flat against the bench throughout",
+        "Curl legs toward your glutes — full range of motion",
+        "Squeeze hamstrings hard at the top",
+        "Slow controlled descent — 2-3 seconds down",
+        "Don't use momentum or lift your hips to assist"
+      ]
+    },
+    "Squats": {
+      "tips": [
+        "Feet shoulder-width apart, toes slightly out",
+        "Chest up and neutral spine throughout",
+        "Descend until hips are at or below parallel",
+        "Knees track over toes — don't let them cave in",
+        "Drive through the heels on the way up",
+        "Brace your core before each rep"
+      ]
+    },
+    "Triceps overhead": {
+      "tips": [
+        "Hold weight overhead — upper arms stay close to your ears",
+        "Lower the weight behind your head by bending only at the elbows",
+        "Extend fully overhead and squeeze the triceps hard",
+        "Don't let your elbows flare out wide",
+        "Control the descent — feel the tricep stretch",
+        "Keep core tight — don't arch the lower back"
+      ]
+    },
+    "Seated shoulder press  Smith machine)": {
+      "tips": [
+        "Sit upright on a bench under the bar, back against the seat",
+        "Adjust bar height to shoulder level when seated",
+        "Grip slightly wider than shoulder-width",
+        "Press directly overhead, don't fully lock elbows",
+        "Lower to chin or shoulder level — full range",
+        "Keep lower back against the seat throughout"
+      ]
+    },
+    "Incline chest press (smith machine)": {
+      "tips": [
+        "Set bench to 30-45° incline, position chest under the bar",
+        "Grip slightly wider than shoulder-width",
+        "Lower bar to your upper chest, elbows at 45-60°",
+        "Press up along the Smith's fixed path",
+        "Don't lock elbows at the top",
+        "Control the descent — feel the upper chest stretch"
+      ]
+    },
+    "Hip abduction in to out": {
+      "tips": [
+        "Sit upright on the adductor machine, legs starting apart",
+        "Squeeze legs together in a smooth, controlled motion",
+        "Feel the inner thigh (adductor) contracting",
+        "Hold briefly at full contraction",
+        "Control the opening — don't let the weight slam out",
+        "Slight forward lean in the seat is acceptable"
+      ]
+    },
+    "Dead hangs": {
+      "tips": [
+        "Grip the bar shoulder-width or wider, overhand or mixed grip",
+        "Let your body hang completely — full arm extension",
+        "Relax your shoulders and feel the spine decompress",
+        "Breathe normally and hold for the target time",
+        "Engage your core lightly to avoid excessive swinging",
+        "Build hang time gradually — don't push through grip failure"
+      ]
     }
   }
 }
