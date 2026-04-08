@@ -153,7 +153,9 @@ function parseCSVRow(line) {
     muscles: parts[2],
     formNotes: parts[3],
     sets: sets,
-    location: (parts[14] || '').toLowerCase().trim() || 'gym'
+    location: (parts[14] || '').toLowerCase().trim() || 'gym',
+    notes: (parts[15] || '').trim(),
+    summary: (parts[16] || '').trim()
   };
 }
 
@@ -213,6 +215,7 @@ function getSessions() {
       sessionMap[record.date] = {
         date: record.date,
         location: record.location || 'gym',
+        summary: record.summary || '',
         exercises: []
       };
     }

@@ -52,6 +52,26 @@
       return tipData.tips.slice(0, 3);
     }
 
+    function makeTip(text, id) {
+      if (!text) return '';
+      return `<span class="tip-wrap" id="tip-${id}" onclick="toggleTip('tip-${id}', event)">
+        <span class="tip-icon">i</span>
+        <span class="tip-box">${text}</span>
+      </span>`;
+    }
+
+    function toggleTip(id, event) {
+      event.stopPropagation();
+      const el = document.getElementById(id);
+      const wasOpen = el.classList.contains('open');
+      document.querySelectorAll('.tip-wrap.open').forEach(e => e.classList.remove('open'));
+      if (!wasOpen) el.classList.add('open');
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.tip-wrap.open').forEach(e => e.classList.remove('open'));
+    });
+
     function applyBadge(el, location) {
       if (location === 'home') {
         el.textContent = '🏠 Home';
@@ -86,9 +106,9 @@
         const volume = session.exercises.reduce((sum, ex) => sum + calculateVolume(ex), 0);
         const location = session.location || 'gym';
 
-        const exercisesHtml = session.exercises.map(ex => {
+        const exercisesHtml = session.exercises.map((ex, exIdx) => {
           const tips = getFormTips(ex.exercise);
-          const setsHtml = ex.sets.map((s, i) =>
+          const setsHtml = ex.sets.map(s =>
             `<span><strong>${s.weight}</strong> kg × <strong>${s.reps}</strong></span>`
           ).join('<span style="color: var(--text-secondary); margin: 0 0.4rem;">,</span>');
           const tipsHtml = tips.length > 0
@@ -96,12 +116,16 @@
                 ${tips.map(t => `<li>${t}</li>`).join('')}
                </ul>`
             : '';
+          const notesTip = makeTip(ex.notes, `${index}-ex-${exIdx}`);
           return `
           <div class="exercise-in-session">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-              <div>
-                <div style="font-weight: 600; color: var(--accent);">${ex.exercise}</div>
-                <div style="font-size: 0.85rem; color: var(--text-secondary);">${ex.muscles}</div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div>
+                  <div style="font-weight: 600; color: var(--accent);">${ex.exercise}</div>
+                  <div style="font-size: 0.85rem; color: var(--text-secondary);">${ex.muscles}</div>
+                </div>
+                ${notesTip}
               </div>
               <div style="text-align: right;">
                 <div style="font-weight: 600; color: var(--accent);">${calculateVolume(ex).toFixed(0)}</div>
@@ -121,7 +145,10 @@
             <div class="session-header" onclick="toggleSession(${index})">
               <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <div>
-                  <div class="session-date">${formatDate(session.date)}</div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="session-date">${formatDate(session.date)}</div>
+                    ${makeTip(session.summary, `${index}-summary`)}
+                  </div>
                   <div class="session-meta">
                     <span>${session.exercises.length} exercises</span>
                     <span style="color: var(--accent); font-weight: 600;">${formatNumber(volume)} volume</span>
