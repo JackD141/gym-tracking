@@ -257,19 +257,21 @@
           return sessionDate >= weekStart && sessionDate <= weekEnd;
         });
 
-        // Count sets per exercise
-        const exerciseSets = {};
-        weekSessions.forEach(session => {
-          session.exercises.forEach(ex => {
-            if (!exerciseSets[ex.exercise]) {
-              exerciseSets[ex.exercise] = 0;
-            }
-            exerciseSets[ex.exercise] += ex.sets.length;
-          });
-        });
-
         const gymSessions = weekSessions.filter(s => (s.location || 'gym') === 'gym');
         const homeSessions = weekSessions.filter(s => s.location === 'home');
+
+        const countExerciseSets = (sessionList) => {
+          const map = {};
+          sessionList.forEach(session => {
+            session.exercises.forEach(ex => {
+              map[ex.exercise] = (map[ex.exercise] || 0) + ex.sets.length;
+            });
+          });
+          return map;
+        };
+
+        const gymExerciseSets = countExerciseSets(gymSessions);
+        const homeExerciseSets = countExerciseSets(homeSessions);
         const gymCount = gymSessions.length;
         const homeCount = homeSessions.length;
         const gymSets = gymSessions.reduce((sum, s) => sum + s.exercises.reduce((a, ex) => a + ex.sets.length, 0), 0);
@@ -283,7 +285,8 @@
           homeCount,
           gymSets,
           homeSets,
-          exerciseSets: exerciseSets
+          gymExerciseSets,
+          homeExerciseSets
         });
       }
 
@@ -350,10 +353,12 @@
                 title: (context) => `Week of ${data[context[0].dataIndex].week}`,
                 afterBody: (context) => {
                   const weekData = data[context[0].dataIndex];
-                  const exercises = Object.entries(weekData.exerciseSets)
+                  const datasetIndex = context[0].datasetIndex;
+                  const exerciseSets = datasetIndex === 0 ? weekData.gymExerciseSets : weekData.homeExerciseSets;
+                  const exercises = Object.entries(exerciseSets)
                     .map(([name, sets]) => ({ name, sets }))
                     .sort((a, b) => b.sets - a.sets);
-                  return ['', ...exercises.map(ex => `${ex.name}: ${ex.sets} sets`)];
+                  return exercises.length ? ['', ...exercises.map(ex => `${ex.name}: ${ex.sets} sets`)] : [];
                 }
               }
             }
